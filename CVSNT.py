@@ -2,7 +2,6 @@ import sublime
 import sublime_plugin
 import os.path
 import subprocess
-import re
 import time
 
 
@@ -18,15 +17,16 @@ file_status_cache = {}
 
 
 class CVSNTCommand():
+
     def get_path(self, paths):
-        if paths == True:
+        if paths is True:
             return self.window.active_view().file_name()
         return paths[0] if paths else self.window.active_view().file_name()
 
     def get_vcs(self, path):
         settings = sublime.load_settings('CVSNT.sublime-settings')
 
-        if path == None:
+        if path is None:
             raise NotFoundError('Unable to run commands on an unsaved file')
         vcs = None
 
@@ -35,9 +35,9 @@ class CVSNTCommand():
         except (RepositoryNotFoundError):
             pass
 
-        if vcs == None:
+        if vcs is None:
             raise NotFoundError('The current file does not appear to be in an ' +
-                'CVS working copy')
+                                'CVS working copy')
 
         return vcs
 
@@ -50,7 +50,8 @@ def handles_not_found(fn):
     def handler(self, *args, **kwargs):
         try:
             fn(self, *args, **kwargs)
-        except (NotFoundError) as (exception):
+        except (NotFoundError) as xxx_todo_changeme:
+            (exception) = xxx_todo_changeme
             sublime.error_message('CVSNT: ' + str(exception))
     return handler
 
@@ -59,7 +60,7 @@ def invisible_when_not_found(fn):
     def handler(self, *args, **kwargs):
         try:
             res = fn(self, *args, **kwargs)
-            if res != None:
+            if res is not None:
                 return res
             return True
         except (NotFoundError):
@@ -67,14 +68,16 @@ def invisible_when_not_found(fn):
     return handler
 
 
-class CVSNTExploreCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+class CvsntExploreCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+
     @handles_not_found
     def run(self, paths=None):
         path = self.get_path(paths)
         self.get_vcs(path).explore(path if paths else None)
 
 
-class CVSNTCommitCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+class CvsntCommitCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+
     @handles_not_found
     def run(self, paths=None):
         path = self.get_path(paths)
@@ -91,7 +94,8 @@ class CVSNTCommitCommand(sublime_plugin.WindowCommand, CVSNTCommand):
         return os.path.isdir(path)
 
 
-class CVSNTStatusCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+class CvsntStatusCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+
     @handles_not_found
     def run(self, paths=None):
         path = self.get_path(paths)
@@ -108,7 +112,8 @@ class CVSNTStatusCommand(sublime_plugin.WindowCommand, CVSNTCommand):
         return os.path.isdir(path)
 
 
-class CVSNTSyncCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+class CvsntSyncCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+
     @handles_not_found
     def run(self, paths=None):
         path = self.get_path(paths)
@@ -125,7 +130,8 @@ class CVSNTSyncCommand(sublime_plugin.WindowCommand, CVSNTCommand):
         return os.path.isdir(path)
 
 
-class CVSNTLogCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+class CvsntLogCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+
     @handles_not_found
     def run(self, paths=None):
         path = self.get_path(paths)
@@ -150,7 +156,9 @@ class CVSNTLogCommand(sublime_plugin.WindowCommand, CVSNTCommand):
         return path and self.get_vcs(path).get_status(path) in \
             ['', 'M', 'R', 'C', 'U']
 
-class CVSNTBlameCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+
+class CvsntBlameCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+
     @handles_not_found
     def run(self, paths=None):
         path = self.get_path(paths)
@@ -175,7 +183,9 @@ class CVSNTBlameCommand(sublime_plugin.WindowCommand, CVSNTCommand):
         return path and self.get_vcs(path).get_status(path) in \
             ['A', '', 'M', 'R', 'C', 'U']
 
-class CVSNTDiffCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+
+class CvsntDiffCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+
     @handles_not_found
     def run(self, paths=None):
         path = self.get_path(paths)
@@ -199,13 +209,14 @@ class CVSNTDiffCommand(sublime_plugin.WindowCommand, CVSNTCommand):
             return True
         vcs = self.get_vcs(path)
         return vcs.get_status(path) in ['M']
-        #if isinstance(vcs, TortoiseHg):
+        # if isinstance(vcs, TortoiseHg):
         #    return vcs.get_status(path) in ['M']
-        #else:
+        # else:
         #    return vcs.get_status(path) in ['A', 'M', 'R', 'C', 'U']
 
 
-class CVSNTAddCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+class CvsntAddCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+
     @handles_not_found
     def run(self, paths=None):
         path = self.get_path(paths)
@@ -219,7 +230,8 @@ class CVSNTAddCommand(sublime_plugin.WindowCommand, CVSNTCommand):
         return self.get_vcs(path).get_status(path) in ['D', '?']
 
 
-class CVSNTRemoveCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+class CvsntRemoveCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+
     @handles_not_found
     def run(self, paths=None):
         path = self.get_path(paths)
@@ -241,7 +253,8 @@ class CVSNTRemoveCommand(sublime_plugin.WindowCommand, CVSNTCommand):
         return self.get_vcs(path).get_status(path) in ['']
 
 
-class CVSNTRevertCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+class CvsntRevertCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+
     @handles_not_found
     def run(self, paths=None):
         path = self.get_path(paths)
@@ -265,38 +278,39 @@ class CVSNTRevertCommand(sublime_plugin.WindowCommand, CVSNTCommand):
 
 
 class ForkGui():
+
     def __init__(self, cmd, cwd):
         subprocess.Popen(cmd, stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-            cwd=cwd)
+                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                         cwd=cwd)
+
 
 class CVSNT():
+
     def __init__(self, binary_path, file):
         self.find_root('CVS', file)
-        if binary_path != None:
+        if binary_path is not None:
             self.path = binary_path
         else:
             self.set_binary_path('CVSNT\\cvs.exe', 'cvs.exe', 'cvsnt_cvs_path')
 
-
     def find_root(self, name, path, find_first=True):
         root_dir = None
         last_dir = None
-        cur_dir  = path if os.path.isdir(path) else os.path.dirname(path)
+        cur_dir = path if os.path.isdir(path) else os.path.dirname(path)
         while cur_dir != last_dir:
-            if root_dir != None and not os.path.exists(os.path.join(cur_dir,
-                    name)):
+            if root_dir is not None and not os.path.exists(os.path.join(cur_dir, name)):
                 break
             if os.path.exists(os.path.join(cur_dir, name)):
                 root_dir = cur_dir
                 if find_first:
                     break
             last_dir = cur_dir
-            cur_dir  = os.path.dirname(cur_dir)
+            cur_dir = os.path.dirname(cur_dir)
 
-        if root_dir == None:
+        if root_dir is None:
             raise RepositoryNotFoundError('Unable to find ' + name +
-                ' directory')
+                                          ' directory')
         self.root_dir = root_dir
 
     def set_binary_path(self, path_suffix, binary_name, setting_name):
@@ -324,7 +338,7 @@ class CVSNT():
                             normal_path + '"}')
 
     def explore(self, path=None):
-        if path == None:
+        if path is None:
             ForkGui('explorer.exe "' + self.root_dir + '"', None)
         else:
             ForkGui('explorer.exe "' + os.path.dirname(path) + '"', None)
@@ -343,7 +357,8 @@ class CVSNT():
 
         try:
             status = vcs.check_status(path)
-        except (Exception) as (exception):
+        except (Exception) as xxx_todo_changeme1:
+            (exception) = xxx_todo_changeme1
             sublime.error_message(str(exception))
 
         file_status_cache[path] = {
@@ -353,7 +368,7 @@ class CVSNT():
 
         if settings.get('debug'):
             print 'Fetching status for %s in %s seconds' % (path,
-                str(time.time() - start_time))
+                                                            str(time.time() - start_time))
 
         return status
 
@@ -408,9 +423,10 @@ class CVSNT():
 
 
 class NonInteractiveProcess():
+
     def __init__(self, args, cwd=None):
         self.args = args
-        self.cwd  = cwd
+        self.cwd = cwd
 
     def run(self):
         startupinfo = None
@@ -419,13 +435,14 @@ class NonInteractiveProcess():
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
         proc = subprocess.Popen(self.args, stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-            startupinfo=startupinfo, cwd=self.cwd)
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                startupinfo=startupinfo, cwd=self.cwd)
 
         return proc.stdout.read().replace('\r\n', '\n').rstrip(' \n\r')
 
 
 class CVS():
+
     def __init__(self, cvsnt_cvs_path, root_dir):
         self.cvs_path = os.path.dirname(cvsnt_cvs_path) + '\\cvs.exe'
         self.root_dir = root_dir
@@ -433,14 +450,14 @@ class CVS():
     def check_status(self, path):
         if os.path.isdir(path):
             proc = NonInteractiveProcess([self.cvs_path, 'log', '-l', '1',
-                '"' + path + '"'], cwd=self.root_dir)
+                                          '"' + path + '"'], cwd=self.root_dir)
             result = proc.run().strip().split('\n')
             if result == ['']:
                 return '?'
             return ''
 
         proc = NonInteractiveProcess([self.cvs_path, 'status', path],
-            cwd=self.root_dir)
+                                     cwd=self.root_dir)
         result = proc.run().split('\n')
         for line in result:
             if len(line) < 1:
