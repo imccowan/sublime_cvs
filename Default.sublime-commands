@@ -1,20 +1,20 @@
 [
     {
-        "caption": "Preferences: Tortoise Settings – Default",
+        "caption": "Preferences: CVSNT Settings – Default",
         "command": "open_file",
         "args": {
-            "file": "${packages}/Tortoise/Tortoise.sublime-settings"
+            "file": "${packages}/CVSNT/CVSNT.sublime-settings"
         }
     },
     {
-        "caption": "Preferences: Tortoise Settings – User",
+        "caption": "Preferences: CVSNT Settings – User",
         "command": "open_file",
         "args": {
-            "file": "${packages}/User/Tortoise.sublime-settings"
+            "file": "${packages}/User/CVSNT.sublime-settings"
         }
     },
     {
-        "caption": "Preferences: Tortoise Key Bindings – Default",
+        "caption": "Preferences: CVSNT Key Bindings – Default",
         "command": "open_file",
         "args": {
             "file": "${packages}/Terminal/Default (Windows).sublime-keymap",
@@ -22,7 +22,7 @@
         }
     },
     {
-        "caption": "Preferences: Tortoise Key Bindings – User",
+        "caption": "Preferences: CVSNT Key Bindings – User",
         "command": "open_file",
         "args": {
             "file": "${packages}/User/Default (Windows).sublime-keymap",

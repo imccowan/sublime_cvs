@@ -1,13 +1,18 @@
 [
 	{ "caption": "-" },
-	{ "caption": "Tortoise Status…", "command": "tortoise_status", "args": {"paths": []} },
-	{ "caption": "Tortoise Log…", "command": "tortoise_log", "args": {"paths": []} },
-	{ "caption": "Tortoise Blame…", "command": "tortoise_blame", "args": {"paths": []} },
-	{ "caption": "Tortoise Sync…", "command": "tortoise_sync", "args": {"paths": []} },
-	{ "caption": "Tortoise Commit…", "command": "tortoise_commit", "args": {"paths": []} },
-	{ "caption": "Tortoise Diff…", "command": "tortoise_diff", "args": {"paths": []} },
-	{ "caption": "Tortoise Add…", "command": "tortoise_add", "args": {"paths": []} },
-	{ "caption": "Tortoise Revert…", "command": "tortoise_revert", "args": {"paths": []} },
-	{ "caption": "Tortoise Remove…", "command": "tortoise_remove", "args": {"paths": []} },
-	{ "caption": "-", "id": "end" }
+	{
+		"caption": "CVSNT",
+		"children":
+		[
+			{ "caption": "Status…", "command": "cvsnt_status", "args": {"paths": []} },
+			{ "caption": "Log…", "command": "cvs_log", "args": {"paths": []} },
+			{ "caption": "Blame…", "command": "cvs_blame", "args": {"paths": []} },
+			{ "caption": "Sync…", "command": "cvs_sync", "args": {"paths": []} },
+			{ "caption": "Commit…", "command": "cvs_commit", "args": {"paths": []} },
+			{ "caption": "Diff…", "command": "cvs_diff", "args": {"paths": []} },
+			{ "caption": "Add…", "command": "cvs_add", "args": {"paths": []} },
+			{ "caption": "Revert…", "command": "cvs_revert", "args": {"paths": []} },
+			{ "caption": "Remove…", "command": "cvs_remove", "args": {"paths": []} }
+		]
+	}
 ]

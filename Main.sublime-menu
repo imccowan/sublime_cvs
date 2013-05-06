@@ -1,5 +1,26 @@
 [
     {
+        "id": "tools",
+        "children":
+        [
+            {
+                "caption": "CVSNT",
+                "children":
+                [
+                    { "caption": "Status…", "command": "cvsnt_status", "args": {"paths": []} },
+                    { "caption": "Log…", "command": "cvsnt_log", "args": {"paths": []} },
+                    { "caption": "Blame…", "command": "cvsnt_blame", "args": {"paths": []} },
+                    { "caption": "Sync…", "command": "cvsnt_sync", "args": {"paths": []} },
+                    { "caption": "Commit…", "command": "cvsnt_commit", "args": {"paths": []} },
+                    { "caption": "Diff…", "command": "cvsnt_diff", "args": {"paths": []} },
+                    { "caption": "Add…", "command": "cvsnt_add", "args": {"paths": []} },
+                    { "caption": "Revert…", "command": "cvsnt_revert", "args": {"paths": []} },
+                    { "caption": "Remove…", "command": "cvsnt_remove", "args": {"paths": []} }
+                ]
+            }
+        ]
+    }
+    ,{
         "caption": "Preferences",
         "mnemonic": "n",
         "id": "preferences",
@@ -12,23 +33,23 @@
                 "children":
                 [
                     {
-                        "caption": "Tortoise",
+                        "caption": "CVSNT",
                         "children":
                         [
                             {
                                 "command": "open_file", 
-                                "args": {"file": "${packages}/Tortoise/Tortoise.sublime-settings"},
+                                "args": {"file": "${packages}/CVSNT/CVSNT.sublime-settings"},
                                 "caption": "Settings – Default"
                             },
                             {
                                 "command": "open_file", 
-                                "args": {"file": "${packages}/User/Tortoise.sublime-settings"},
+                                "args": {"file": "${packages}/User/CVSNT.sublime-settings"},
                                 "caption": "Settings – User"
                             },
                             {
                                 "command": "open_file",
                                 "args": {
-                                    "file": "${packages}/Tortoise/Default (Windows).sublime-keymap",
+                                    "file": "${packages}/CVSNT/Default (Windows).sublime-keymap",
                                     "platform": "Windows"
                                 },
                                 "caption": "Key Bindings – Default"
