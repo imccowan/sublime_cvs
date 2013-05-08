@@ -6,13 +6,10 @@
 		[
 			{ "caption": "Status…", "command": "cvsnt_status", "args": {"paths": []} },
 			{ "caption": "Log…", "command": "cvs_log", "args": {"paths": []} },
-			{ "caption": "Blame…", "command": "cvs_blame", "args": {"paths": []} },
-			{ "caption": "Sync…", "command": "cvs_sync", "args": {"paths": []} },
-			{ "caption": "Commit…", "command": "cvs_commit", "args": {"paths": []} },
 			{ "caption": "Diff…", "command": "cvs_diff", "args": {"paths": []} },
+			{ "caption": "Annotate…", "command": "cvs_annotate", "args": {"paths": []]} },
 			{ "caption": "Add…", "command": "cvs_add", "args": {"paths": []} },
-			{ "caption": "Revert…", "command": "cvs_revert", "args": {"paths": []} },
-			{ "caption": "Remove…", "command": "cvs_remove", "args": {"paths": []} }
+			{ "caption": "Commit…", "command": "cvs_commit", "args": {"paths": []} }
 		]
 	}
 ]

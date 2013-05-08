@@ -4,12 +4,12 @@
 		"caption": "CVSNT",
 		"children":
 		[ 
+			{ "command": "cvsnt_status", "args": {"paths": true}, "caption": "Status…" },
 			{ "command": "cvsnt_log", "args": {"paths": true}, "caption": "Log…" },
-			{ "command": "cvsnt_blame", "args": {"paths": true}, "caption": "Blame…" },
 			{ "command": "cvsnt_diff", "args": {"paths": true}, "caption": "Diff…" },
+			{ "command": "cvsnt_annotate", "args": {"paths": true}, "caption": "Annotate…" },
 			{ "command": "cvsnt_add", "args": {"paths": true}, "caption": "Add…" },
-			{ "command": "cvsnt_revert", "args": {"paths": true}, "caption": "Revert…" },
-			{ "command": "cvsnt_remove", "args": {"paths": true}, "caption": "Remove…" }
+			{ "command": "cvsnt_commit", "args": {"paths": true}, "caption": "Commit…" }
 		]
 	}
 ]

@@ -23,7 +23,7 @@ class CVSNTCommand():
             return self.window.active_view().file_name()
         return paths[0] if paths else self.window.active_view().file_name()
 
-    def get_vcs(self, path):
+    def get_cvs(self, path):
         settings = sublime.load_settings('CVSNT.sublime-settings')
 
         if path is None:
@@ -38,12 +38,35 @@ class CVSNTCommand():
         if vcs is None:
             raise NotFoundError('The current file does not appear to be in an ' +
                                 'CVS working copy')
-
         return vcs
 
     def menus_enabled(self):
         settings = sublime.load_settings('CVS.sublime-settings')
         return settings.get('enable_menus', True)
+
+    def get_window(self):
+        return self.window
+
+    def _output_to_view(self, output_file, output, clear=False, syntax=None, **kwargs):
+        if syntax is not None:
+            output_file.set_syntax_file(syntax)
+        edit = output_file.begin_edit()
+        if clear:
+            region = sublime.Region(0, self.output_view.size())
+            output_file.erase(edit, region)
+        output_file.insert(edit, 0, output)
+        output_file.end_edit(edit)
+
+    def scratch(self, output, title=False, position=None, **kwargs):
+        scratch_file = self.get_window().new_file()
+        if title:
+            scratch_file.set_name(title)
+        scratch_file.set_scratch(True)
+        self._output_to_view(scratch_file, output, **kwargs)
+        scratch_file.set_read_only(True)
+        if position:
+            sublime.set_timeout(lambda: scratch_file.set_viewport_position(position), 0)
+        return scratch_file
 
 
 def handles_not_found(fn):
@@ -68,12 +91,29 @@ def invisible_when_not_found(fn):
     return handler
 
 
-class CvsntExploreCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+class CvsntAnnotateCommand(sublime_plugin.WindowCommand, CVSNTCommand):
 
     @handles_not_found
     def run(self, paths=None):
         path = self.get_path(paths)
-        self.get_vcs(path).explore(path if paths else None)
+        self.scratch(self.get_cvs(path).annotate(path if paths else None), syntax=None)
+
+    @invisible_when_not_found
+    def is_visible(self, paths=None):
+        if not self.menus_enabled():
+            return False
+        path = self.get_path(paths)
+        vcs = self.get_cvs(path)
+        if os.path.isdir(path):
+            return True
+        return path and vcs.get_status(path)
+
+    @invisible_when_not_found
+    def is_enabled(self, paths=None):
+        path = self.get_path(paths)
+        if os.path.isdir(path):
+            return True
+        return path and self.get_cvs(path).get_status(path)
 
 
 class CvsntCommitCommand(sublime_plugin.WindowCommand, CVSNTCommand):
@@ -81,7 +121,7 @@ class CvsntCommitCommand(sublime_plugin.WindowCommand, CVSNTCommand):
     @handles_not_found
     def run(self, paths=None):
         path = self.get_path(paths)
-        self.get_vcs(path).commit(path if os.path.isdir(path) else None)
+        self.get_cvs(path).commit(path if os.path.isdir(path) else None)
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
@@ -90,7 +130,7 @@ class CvsntCommitCommand(sublime_plugin.WindowCommand, CVSNTCommand):
         path = self.get_path(paths)
         if not path:
             return False
-        self.get_vcs(path)
+        self.get_cvs(path)
         return os.path.isdir(path)
 
 
@@ -99,35 +139,27 @@ class CvsntStatusCommand(sublime_plugin.WindowCommand, CVSNTCommand):
     @handles_not_found
     def run(self, paths=None):
         path = self.get_path(paths)
-        self.get_vcs(path).status(path if os.path.isdir(path) else None)
+        status = self.get_cvs(path).status(path if paths else None)
+        if status is not None:
+            print status
+            #self.panel(status)
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
         if not self.menus_enabled():
             return False
         path = self.get_path(paths)
-        if not path:
-            return False
-        self.get_vcs(path)
-        return os.path.isdir(path)
-
-
-class CvsntSyncCommand(sublime_plugin.WindowCommand, CVSNTCommand):
-
-    @handles_not_found
-    def run(self, paths=None):
-        path = self.get_path(paths)
-        self.get_vcs(path).sync(path if os.path.isdir(path) else None)
+        vcs = self.get_cvs(path)
+        if os.path.isdir(path):
+            return True
+        return path and vcs.get_status(path)
 
     @invisible_when_not_found
-    def is_visible(self, paths=None):
-        if not self.menus_enabled():
-            return False
+    def is_enabled(self, paths=None):
         path = self.get_path(paths)
-        if not path:
-            return False
-        self.get_vcs(path)
-        return os.path.isdir(path)
+        if os.path.isdir(path):
+            return True
+        return path and self.get_cvs(path).get_status(path)
 
 
 class CvsntLogCommand(sublime_plugin.WindowCommand, CVSNTCommand):
@@ -135,53 +167,24 @@ class CvsntLogCommand(sublime_plugin.WindowCommand, CVSNTCommand):
     @handles_not_found
     def run(self, paths=None):
         path = self.get_path(paths)
-        self.get_vcs(path).log(path if paths else None)
+        self.scratch(self.get_cvs(path).log(path if paths else None), syntax=None)
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
         if not self.menus_enabled():
             return False
         path = self.get_path(paths)
-        vcs = self.get_vcs(path)
+        vcs = self.get_cvs(path)
         if os.path.isdir(path):
             return True
-        return path and vcs.get_status(path) in \
-            ['A', '', 'M', 'R', 'C', 'U']
+        return path and vcs.get_status(path)
 
     @invisible_when_not_found
     def is_enabled(self, paths=None):
         path = self.get_path(paths)
         if os.path.isdir(path):
             return True
-        return path and self.get_vcs(path).get_status(path) in \
-            ['', 'M', 'R', 'C', 'U']
-
-
-class CvsntBlameCommand(sublime_plugin.WindowCommand, CVSNTCommand):
-
-    @handles_not_found
-    def run(self, paths=None):
-        path = self.get_path(paths)
-        self.get_vcs(path).blame(path if paths else None)
-
-    @invisible_when_not_found
-    def is_visible(self, paths=None):
-        if not self.menus_enabled():
-            return False
-        path = self.get_path(paths)
-        if os.path.isdir(path):
-            return False
-        vcs = self.get_vcs(path)
-        return path and vcs.get_status(path) in \
-            ['A', '', 'M', 'R', 'C', 'U']
-
-    @invisible_when_not_found
-    def is_enabled(self, paths=None):
-        path = self.get_path(paths)
-        if os.path.isdir(path):
-            return False
-        return path and self.get_vcs(path).get_status(path) in \
-            ['A', '', 'M', 'R', 'C', 'U']
+        return path and self.get_cvs(path).get_status(path)
 
 
 class CvsntDiffCommand(sublime_plugin.WindowCommand, CVSNTCommand):
@@ -189,30 +192,29 @@ class CvsntDiffCommand(sublime_plugin.WindowCommand, CVSNTCommand):
     @handles_not_found
     def run(self, paths=None):
         path = self.get_path(paths)
-        self.get_vcs(path).diff(path if paths else None)
+        diff = self.get_cvs(path).diff(path if paths else None)
+        if diff is not None:
+            self.scratch(diff, syntax="Packages/Diff/Diff.tmLanguage")
+        else:
+            self.panel('test')
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
         if not self.menus_enabled():
             return False
         path = self.get_path(paths)
-        vcs = self.get_vcs(path)
+        vcs = self.get_cvs(path)
         if os.path.isdir(path):
             return True
-        return vcs.get_status(path) in \
-            ['A', '', 'M', 'R', 'C', 'U']
+        return vcs.get_status(path)
 
     @invisible_when_not_found
     def is_enabled(self, paths=None):
         path = self.get_path(paths)
         if os.path.isdir(path):
             return True
-        vcs = self.get_vcs(path)
-        return vcs.get_status(path) in ['M']
-        # if isinstance(vcs, TortoiseHg):
-        #    return vcs.get_status(path) in ['M']
-        # else:
-        #    return vcs.get_status(path) in ['A', 'M', 'R', 'C', 'U']
+        vcs = self.get_cvs(path)
+        return vcs.get_status(path)
 
 
 class CvsntAddCommand(sublime_plugin.WindowCommand, CVSNTCommand):
@@ -220,61 +222,14 @@ class CvsntAddCommand(sublime_plugin.WindowCommand, CVSNTCommand):
     @handles_not_found
     def run(self, paths=None):
         path = self.get_path(paths)
-        self.get_vcs(path).add(path)
+        self.get_cvs(path).add(path)
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
         if not self.menus_enabled():
             return False
         path = self.get_path(paths)
-        return self.get_vcs(path).get_status(path) in ['D', '?']
-
-
-class CvsntRemoveCommand(sublime_plugin.WindowCommand, CVSNTCommand):
-
-    @handles_not_found
-    def run(self, paths=None):
-        path = self.get_path(paths)
-        self.get_vcs(path).remove(path)
-
-    @invisible_when_not_found
-    def is_visible(self, paths=None):
-        if not self.menus_enabled():
-            return False
-        path = self.get_path(paths)
-        return self.get_vcs(path).get_status(path) in \
-            ['A', '', 'M', 'R', 'C', 'U']
-
-    @invisible_when_not_found
-    def is_enabled(self, paths=None):
-        path = self.get_path(paths)
-        if os.path.isdir(path):
-            return True
-        return self.get_vcs(path).get_status(path) in ['']
-
-
-class CvsntRevertCommand(sublime_plugin.WindowCommand, CVSNTCommand):
-
-    @handles_not_found
-    def run(self, paths=None):
-        path = self.get_path(paths)
-        self.get_vcs(path).revert(path)
-
-    @invisible_when_not_found
-    def is_visible(self, paths=None):
-        if not self.menus_enabled():
-            return False
-        path = self.get_path(paths)
-        return self.get_vcs(path).get_status(path) in \
-            ['A', '', 'M', 'R', 'C', 'U']
-
-    @invisible_when_not_found
-    def is_enabled(self, paths=None):
-        path = self.get_path(paths)
-        if os.path.isdir(path):
-            return True
-        return self.get_vcs(path).get_status(path) in \
-            ['A', 'M', 'R', 'C', 'U']
+        return self.get_cvs(path).get_status(path)
 
 
 class ForkGui():
@@ -337,12 +292,6 @@ class CVSNT():
                             'Example:\n\n' + '{"' + setting_name + '": r"' +
                             normal_path + '"}')
 
-    def explore(self, path=None):
-        if path is None:
-            ForkGui('explorer.exe "' + self.root_dir + '"', None)
-        else:
-            ForkGui('explorer.exe "' + os.path.dirname(path) + '"', None)
-
     def process_status(self, vcs, path):
         global file_status_cache
         settings = sublime.load_settings('CVSNT.sublime-settings')
@@ -369,53 +318,41 @@ class CVSNT():
         if settings.get('debug'):
             print 'Fetching status for %s in %s seconds' % (path,
                                                             str(time.time() - start_time))
-
         return status
 
-    def status(self, path=None):
+    def annotate(self, path=None):
         path = os.path.relpath(path, self.root_dir)
-        args = [self.path, 'status', '--nofork', path]
-        ForkGui(args, self.root_dir)
-
-    def commit(self, path=None):
-        path = os.path.relpath(path, self.root_dir)
-        args = [self.path, 'commit', '--nofork', path]
-        ForkGui(args, self.root_dir)
-
-    def sync(self, path=None):
-        path = os.path.relpath(path, self.root_dir)
-        args = [self.path, 'synch', '--nofork', path]
-        ForkGui(args, self.root_dir)
-
-    def log(self, path=None):
-        path = os.path.relpath(path, self.root_dir)
-        args = [self.path, 'log', '--nofork', path]
-        ForkGui(args, self.root_dir)
-
-    def blame(self, path=None):
-        path = os.path.relpath(path, self.root_dir)
-        args = [self.path, 'blame', '--nofork', path]
-        ForkGui(args, self.root_dir)
+        args = [self.path, 'annotate', path]
+        cvs = CVS(self.path, self.root_dir)
+        return cvs.run(args, self.root_dir)
 
     def diff(self, path):
         path = os.path.relpath(path, self.root_dir)
-        args = [self.path, 'vdiff', '--nofork', path]
-        ForkGui(args, self.root_dir)
+        args = [self.path, 'diff', path]
+        cvs = CVS(self.path, self.root_dir)
+        return cvs.run(args, self.root_dir)
+
+    def status(self, path=None):
+        path = os.path.relpath(path, self.root_dir)
+        args = [self.path, 'status', path]
+        cvs = CVS(self.path, self.root_dir)
+        return cvs.run(args, self.root_dir)
+
+    def log(self, path=None):
+        path = os.path.relpath(path, self.root_dir)
+        args = [self.path, 'log', path]
+        cvs = CVS(self.path, self.root_dir)
+        return cvs.run(args, self.root_dir)
 
     def add(self, path):
         path = os.path.relpath(path, self.root_dir)
         args = [self.path, 'add', '--nofork', path]
-        ForkGui(args, self.root_dir)
+        #ForkGui(args, self.root_dir)
 
-    def remove(self, path):
+    def commit(self, path=None):
         path = os.path.relpath(path, self.root_dir)
-        args = [self.path, 'remove', '--nofork', path]
-        ForkGui(args, self.root_dir)
-
-    def revert(self, path):
-        path = os.path.relpath(path, self.root_dir)
-        args = [self.path, 'revert', '--nofork', path]
-        ForkGui(args, self.root_dir)
+        args = [self.path, 'commit', '--nofork', path]
+        #ForkGui(args, self.root_dir)
 
     def get_status(self, path):
         cvs = CVS(self.path, self.root_dir)
@@ -456,11 +393,16 @@ class CVS():
                 return '?'
             return ''
 
-        proc = NonInteractiveProcess([self.cvs_path, 'status', path],
+        proc = NonInteractiveProcess([self.cvs_path, 'status', os.path.basename(path)],
                                      cwd=self.root_dir)
         result = proc.run().split('\n')
-        for line in result:
-            if len(line) < 1:
-                continue
-            return line[0].upper()
-        return ''
+        if len(result) > 0:
+            return not result[0].startswith('cvs status: nothing known about')
+        return False
+
+    def run(self, cmd, cwd):
+        proc = NonInteractiveProcess(cmd, cwd=cwd)
+        result = proc.run()
+        if len(result) > 0:
+            return result
+        return None
