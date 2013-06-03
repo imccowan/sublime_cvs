@@ -4,12 +4,14 @@
 		"caption": "CVSNT",
 		"children":
 		[ 
-			{ "command": "cvsnt_status", "args": {"paths": true}, "caption": "Status…" },
-			{ "command": "cvsnt_log", "args": {"paths": true}, "caption": "Log…" },
-			{ "command": "cvsnt_diff", "args": {"paths": true}, "caption": "Diff…" },
-			{ "command": "cvsnt_annotate", "args": {"paths": true}, "caption": "Annotate…" },
-			{ "command": "cvsnt_add", "args": {"paths": true}, "caption": "Add…" },
-			{ "command": "cvsnt_commit", "args": {"paths": true}, "caption": "Commit…" }
+			{ "command": "cvsnt_annotate", "args": {"paths": true}, "caption": "Annotate" },
+			{ "command": "cvsnt_diff", "args": {"paths": true}, "caption": "Diff" },
+			{ "command": "cvsnt_log", "args": {"paths": true}, "caption": "Log" },
+			//{ "command": "cvsnt_status", "args": {"paths": true}, "caption": "Status" },
+			{ "caption": "-" },
+			// { "command": "cvsnt_add", "args": {"paths": true}, "caption": "Add" },
+			// { "command": "cvsnt_commit", "args": {"paths": true}, "caption": "Commit" },
+			{ "command": "cvsnt_update", "args": {"paths": true}, "caption": "Update…" }
 		]
 	}
 ]

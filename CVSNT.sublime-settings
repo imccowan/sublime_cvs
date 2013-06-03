@@ -10,5 +10,5 @@
 	"enable_menus": true,
 
 	// If debug messages should be printed to the console
-	"debug": true
+	"debug": false
 }

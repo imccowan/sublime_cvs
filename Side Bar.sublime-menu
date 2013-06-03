@@ -4,12 +4,14 @@
 		"caption": "CVSNT",
 		"children":
 		[
-			{ "caption": "Status…", "command": "cvsnt_status", "args": {"paths": []} },
-			{ "caption": "Log…", "command": "cvs_log", "args": {"paths": []} },
-			{ "caption": "Diff…", "command": "cvs_diff", "args": {"paths": []} },
-			{ "caption": "Annotate…", "command": "cvs_annotate", "args": {"paths": []]} },
-			{ "caption": "Add…", "command": "cvs_add", "args": {"paths": []} },
-			{ "caption": "Commit…", "command": "cvs_commit", "args": {"paths": []} }
+			{ "caption": "Annotate", "command": "cvsnt_annotate", "args": {"paths": []} },
+			{ "caption": "Diff", "command": "cvsnt_diff", "args": {"paths": []} },
+			{ "caption": "Log", "command": "cvsnt_log", "args": {"paths": []} },
+			//{ "caption": "Status", "command": "cvsnt_status", "args": {"paths": []} },
+			{ "caption": "-" },
+			// { "caption": "Add", "command": "cvsnt_add", "args": {"paths": []} },
+			// { "caption": "Commit", "command": "cvsnt_commit", "args": {"paths": []} },
+			{ "caption": "Update", "command": "cvsnt_update", "args": {"paths": []} }
 		]
 	}
 ]
