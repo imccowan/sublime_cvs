@@ -30,8 +30,36 @@
         }
     },
     {
+        "caption": "CVS: Annotate",
+        "command": "sublime_cvs_annotate",
+        "args": {
+            "paths": true
+        }
+    },
+    {
         "caption": "CVS: Diff",
         "command": "sublime_cvs_diff",
+        "args": {
+            "paths": true
+        }
+    },
+    {
+        "caption": "CVS: Log",
+        "command": "sublime_cvs_log",
+        "args": {
+            "paths": true
+        }
+    },
+    {
+        "caption": "CVS: Status",
+        "command": "sublime_cvs_status",
+        "args": {
+            "paths": true
+        }
+    },
+    {
+        "caption": "CVS: Update",
+        "command": "sublime_cvs_update",
         "args": {
             "paths": true
         }
