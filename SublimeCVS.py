@@ -31,7 +31,7 @@ class SublimeCVSCommand():
         cvs = None
 
         try:
-            cvs = SublimeCVS(settings.get('sublimecvs_cvs_path'), path)
+            cvs = SublimeCVS(settings.get('cvs_path'), path)
         except (RepositoryNotFoundError):
             pass
 
@@ -41,7 +41,7 @@ class SublimeCVSCommand():
         return cvs
 
     def menus_enabled(self):
-        settings = sublime.load_settings('CVS.sublime-settings')
+        settings = sublime.load_settings('SublimeCVS.sublime-settings')
         return settings.get('enable_menus', True)
 
     def get_window(self):
@@ -65,23 +65,22 @@ class SublimeCVSCommand():
         self._output_to_file(new_file, text, **kwargs)
         new_file.set_read_only(True)
         if position:
-            sublime.set_timeout(lambda: new_file.set_viewport_position(position), 0)
+            sublime.set_timeout(
+                lambda: new_file.set_viewport_position(position), 0)
         return new_file
 
     def output_to_panel(self, text, panel_name):
-        # get_output_panel doesn't "get" the panel, it *creates* it,
-        # so we should only call get_output_panel once
         if not hasattr(self, 'output_panel'):
             self.output_panel = self.window.get_output_panel(panel_name)
         panel = self.output_panel
 
-        # Write this text to the output panel and display it
         edit = panel.begin_edit()
         panel.insert(edit, panel.size(), text.decode('utf-8') + '\n')
         panel.end_edit(edit)
         panel.show(panel.size())
 
-        self.window.run_command("show_panel", {"panel": "output." + panel_name})
+        self.window.run_command("show_panel", {
+                                "panel": "output." + panel_name})
 
 
 def handles_not_found(fn):
@@ -106,34 +105,13 @@ def invisible_when_not_found(fn):
     return handler
 
 
-# class SublimeCvsAddCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
-
-#     @handles_not_found
-#     def run(self, paths=None):
-#         path = self.get_path(paths)
-#         #self.get_cvs(path).add(path)
-
-#     @invisible_when_not_found
-#     def is_visible(self, paths=None):
-#         if not self.menus_enabled():
-#             return False
-#         path = self.get_path(paths)
-#         return True #self.get_cvs(path).get_status(path) in ['']
-
-#     @invisible_when_not_found
-#     def is_enabled(self, paths=None):
-#         path = self.get_path(paths)
-#         if os.path.isdir(path):
-#             return True
-#         return False and path and self.get_cvs(path).get_status(path) in ['']
-
-
 class SublimeCvsAnnotateCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
 
     @handles_not_found
     def run(self, paths=None):
         path = self.get_path(paths)
-        self.output_to_new_file(self.get_cvs(path).annotate(path if paths else None), title=path + ' - CVS Annotated')
+        self.output_to_new_file(self.get_cvs(path).annotate(
+            path if paths else None), title=path + ' - CVS Annotated')
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
@@ -143,7 +121,7 @@ class SublimeCvsAnnotateCommand(sublime_plugin.WindowCommand, SublimeCVSCommand)
         cvs = self.get_cvs(path)
         if os.path.isdir(path):
             return True
-        return True #path and cvs.get_status(path)
+        return True  # path and cvs.get_status(path)
 
     @invisible_when_not_found
     def is_enabled(self, paths=None):
@@ -153,36 +131,17 @@ class SublimeCvsAnnotateCommand(sublime_plugin.WindowCommand, SublimeCVSCommand)
         return path and self.get_cvs(path).get_status(path) in ['U', 'M', 'A', 'R', 'C', 'P', 'G', 'F']
 
 
-# class SublimeCvsCommitCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
-
-#     @handles_not_found
-#     def run(self, paths=None):
-#         path = self.get_path(paths)
-#         #self.get_cvs(path).commit(path)
-
-#     @invisible_when_not_found
-#     def is_visible(self, paths=None):
-#         if not self.menus_enabled():
-#             return False
-#         path = self.get_path(paths)
-#         return True #self.get_cvs(path).get_status(path)
-
-#     @invisible_when_not_found
-#     def is_enabled(self, paths=None):
-#         path = self.get_path(paths)
-#         if os.path.isdir(path):
-#             return True
-#         return False and path and self.get_cvs(path).get_status(path)
-
-
 class SublimeCvsDiffCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
 
     @handles_not_found
     def run(self, paths=None):
+        settings = sublime.load_settings('SublimeCVS.sublime-settings')
         path = self.get_path(paths)
-        diff = self.get_cvs(path).diff(path if paths else None)
+        diff = self.get_cvs(path).diff(
+            path if paths else None, unified_output=settings.get('diff_unified_output'))
         if diff is not None:
-            self.output_to_new_file(diff, title=path + ' - CVS Diff', syntax="Packages/Diff/Diff.tmLanguage")
+            self.output_to_new_file(
+                diff, title=path + ' - CVS Diff', syntax="Packages/Diff/Diff.tmLanguage")
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
@@ -192,7 +151,7 @@ class SublimeCvsDiffCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
         cvs = self.get_cvs(path)
         if os.path.isdir(path):
             return True
-        return True #cvs.get_status(path)
+        return True  # cvs.get_status(path)
 
     @invisible_when_not_found
     def is_enabled(self, paths=None):
@@ -208,7 +167,8 @@ class SublimeCvsLogCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
     @handles_not_found
     def run(self, paths=None):
         path = self.get_path(paths)
-        self.output_to_new_file(self.get_cvs(path).log(path if paths else None), title=path + ' - CVS Log')
+        self.output_to_new_file(self.get_cvs(path).log(
+            path if paths else None), title=path + ' - CVS Log')
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
@@ -218,7 +178,7 @@ class SublimeCvsLogCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
         cvs = self.get_cvs(path)
         if os.path.isdir(path):
             return True
-        return True #path and cvs.get_status(path)
+        return True  # path and cvs.get_status(path)
 
     @invisible_when_not_found
     def is_enabled(self, paths=None):
@@ -269,7 +229,7 @@ class SublimeCvsUpdateCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
         if not self.menus_enabled():
             return False
         path = self.get_path(paths)
-        return True #self.get_cvs(path).get_status(path)
+        return True  # self.get_cvs(path).get_status(path)
 
     @invisible_when_not_found
     def is_enabled(self, paths=None):
@@ -286,7 +246,8 @@ class SublimeCVS():
         if binary_path is not None:
             self.path = binary_path
         else:
-            self.set_binary_path('SublimeCVS\\cvs.exe', 'cvs.exe', 'sublimecvs_cvs_path')
+            self.set_binary_path(
+                'SublimeCVS\\cvs.exe', 'cvs.exe', 'cvs_path')
 
     def find_root(self, name, path, find_first=True):
         root_dir = None
@@ -356,17 +317,12 @@ class SublimeCVS():
 
         if settings.get('debug'):
             print 'Fetching status %s for %s in %s seconds' % (status, path,
-                                                            str(time.time() - start_time))
+                                                               str(time.time() - start_time))
         return status
 
     def get_status(self, path):
         cvs = CVS(self.path, self.root_dir)
         return self.process_status(cvs, path)
-
-    # def add(self, path):
-    #     path = os.path.relpath(path, self.root_dir)
-    #     args = [self.path, 'add', path]
-    #     return cvs.run(args, self.root_dir)
 
     def annotate(self, path=None):
         path = os.path.relpath(path, self.root_dir)
@@ -374,14 +330,12 @@ class SublimeCVS():
         cvs = CVS(self.path, self.root_dir)
         return cvs.run(args, self.root_dir)
 
-    # def commit(self, path=None):
-    #     path = os.path.relpath(path, self.root_dir)
-    #     args = [self.path, 'commit', path]
-    #     return cvs.run(args, self.root_dir)
-
-    def diff(self, path):
+    def diff(self, path, unified_output=False):
         path = os.path.relpath(path, self.root_dir)
-        args = [self.path, 'diff', path]
+        args = [self.path, 'diff']
+        if unified_output:
+            args.append('-u')
+        args.append(path)
         cvs = CVS(self.path, self.root_dir)
         return cvs.run(args, self.root_dir)
 
@@ -425,8 +379,8 @@ class NonInteractiveProcess():
 
 class CVS():
 
-    def __init__(self, sublimecvs_cvs_path, root_dir):
-        self.cvs_path = os.path.dirname(sublimecvs_cvs_path) + '\\cvs.exe'
+    def __init__(self, cvs_path, root_dir):
+        self.cvs_path = os.path.dirname(cvs_path) + '\\cvs.exe'
         self.root_dir = root_dir
 
     def check_status(self, path):
@@ -438,8 +392,9 @@ class CVS():
                 return '?'
             return ''
 
-        proc = NonInteractiveProcess([self.cvs_path, 'status', os.path.basename(path)],
-                                     cwd=self.root_dir)
+        proc = NonInteractiveProcess(
+            [self.cvs_path, 'status', os.path.basename(path)],
+            cwd=self.root_dir)
         result = proc.run()
         #.split('\n')
         if len(result) > 0:
@@ -472,6 +427,7 @@ class CVS():
 
 
 class SublimeCVSStatusBar(sublime_plugin.EventListener, SublimeCVSCommand):
+
     def _update(self, view):
         try:
             path = view.file_name()
