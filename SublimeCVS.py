@@ -20,8 +20,8 @@ class SublimeCVSCommand():
 
     def get_path(self, paths):
         if paths is True:
-            return self.window.active_view().file_name()
-        return paths[0] if paths else self.window.active_view().file_name()
+            return self.get_window().active_view().file_name()
+        return paths[0] if paths else self.get_window().active_view().file_name()
 
     def get_cvs(self, path):
         settings = sublime.load_settings('SublimeCVS.sublime-settings')
@@ -138,10 +138,27 @@ class SublimeCvsDiffCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
         settings = sublime.load_settings('SublimeCVS.sublime-settings')
         path = self.get_path(paths)
         diff = self.get_cvs(path).diff(
-            path if paths else None, unified_output=settings.get('diff_unified_output'))
+            path, unified_output=settings.get('diff_unified_output'))
         if diff is not None:
-            self.output_to_new_file(
+            new_file = self.output_to_new_file(
                 diff, title=path + ' - CVS Diff', syntax="Packages/Diff/Diff.tmLanguage")
+
+            if settings.get('diff_unified_output'):
+                lines_inserted = new_file.find_all(r'^\+[^+]')
+                lines_deleted = new_file.find_all(r'^-[^-]')
+            else:
+                lines_inserted = new_file.find_all(r'^>')
+                lines_deleted = new_file.find_all(r'^<')
+
+            new_file.add_regions(
+                "inserted", lines_inserted, "markup.inserted.diff", "dot", sublime.HIDDEN)
+            new_file.add_regions(
+                "deleted", lines_deleted, "markup.deleted.diff", "dot", sublime.HIDDEN)
+
+            # Store the git root directory in the view so we can resolve relative paths
+            # when the user wants to navigate to the source file.
+            #new_file.settings().set("git_root_dir", git_root(
+            #    self.get_working_dir()))
 
     @invisible_when_not_found
     def is_visible(self, paths=None):

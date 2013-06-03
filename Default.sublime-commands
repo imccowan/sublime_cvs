@@ -28,5 +28,12 @@
             "file": "${packages}/User/Default (Windows).sublime-keymap",
             "platform": "Windows"
         }
+    },
+    {
+        "caption": "CVS: Diff",
+        "command": "sublime_cvs_diff",
+        "args": {
+            "paths": true
+        }
     }
 ]
