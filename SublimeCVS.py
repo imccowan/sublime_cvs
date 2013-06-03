@@ -20,8 +20,8 @@ class SublimeCVSCommand():
 
     def get_path(self, paths):
         if paths is True:
-            return self.window.active_view().file_name()
-        return paths[0] if paths else self.window.active_view().file_name()
+            return self.get_window().active_view().file_name()
+        return paths[0] if paths else self.get_window().active_view().file_name()
 
     def get_cvs(self, path):
         settings = sublime.load_settings('SublimeCVS.sublime-settings')
