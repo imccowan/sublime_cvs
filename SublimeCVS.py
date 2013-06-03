@@ -87,8 +87,8 @@ def handles_not_found(fn):
     def handler(self, *args, **kwargs):
         try:
             fn(self, *args, **kwargs)
-        except (NotFoundError) as xxx_todo_changeme:
-            (exception) = xxx_todo_changeme
+        except (NotFoundError) as handler_not_found_exception:
+            (exception) = handler_not_found_exception
             sublime.error_message('SublimeCVS: ' + str(exception))
     return handler
 
@@ -121,7 +121,7 @@ class SublimeCvsAnnotateCommand(sublime_plugin.WindowCommand, SublimeCVSCommand)
         cvs = self.get_cvs(path)
         if os.path.isdir(path):
             return True
-        return True  # path and cvs.get_status(path)
+        return True
 
     @invisible_when_not_found
     def is_enabled(self, paths=None):
@@ -151,7 +151,7 @@ class SublimeCvsDiffCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
         cvs = self.get_cvs(path)
         if os.path.isdir(path):
             return True
-        return True  # cvs.get_status(path)
+        return True
 
     @invisible_when_not_found
     def is_enabled(self, paths=None):
@@ -178,7 +178,7 @@ class SublimeCvsLogCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
         cvs = self.get_cvs(path)
         if os.path.isdir(path):
             return True
-        return True  # path and cvs.get_status(path)
+        return True
 
     @invisible_when_not_found
     def is_enabled(self, paths=None):
@@ -229,7 +229,7 @@ class SublimeCvsUpdateCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
         if not self.menus_enabled():
             return False
         path = self.get_path(paths)
-        return True  # self.get_cvs(path).get_status(path)
+        return True
 
     @invisible_when_not_found
     def is_enabled(self, paths=None):
@@ -243,11 +243,7 @@ class SublimeCVS():
 
     def __init__(self, binary_path, file):
         self.find_root('CVS', file)
-        if binary_path is not None:
-            self.path = binary_path
-        else:
-            self.set_binary_path(
-                'SublimeCVS\\cvs.exe', 'cvs.exe', 'cvs_path')
+        self.path = binary_path
 
     def find_root(self, name, path, find_first=True):
         root_dir = None
@@ -268,30 +264,6 @@ class SublimeCVS():
                                           ' directory')
         self.root_dir = root_dir
 
-    def set_binary_path(self, path_suffix, binary_name, setting_name):
-        root_drive = os.path.expandvars('%HOMEDRIVE%\\')
-
-        possible_dirs = [
-            'Program Files\\',
-            'Program Files (x86)\\'
-        ]
-
-        for dir in possible_dirs:
-            path = root_drive + dir + path_suffix
-            if os.path.exists(path):
-                self.path = path
-                return
-
-        self.path = None
-        normal_path = root_drive + possible_dirs[0] + path_suffix
-        raise NotFoundError('Unable to find ' + self.__class__.__name__ +
-                            '.\n\nPlease add the path to ' + binary_name +
-                            ' to the setting "' + setting_name + '" in "' +
-                            sublime.packages_path() +
-                            '\\SublimeCVS\\SublimeCVS.sublime-settings".\n\n' +
-                            'Example:\n\n' + '{"' + setting_name + '": r"' +
-                            normal_path + '"}')
-
     def process_status(self, cvs, path):
         global file_status_cache
         settings = sublime.load_settings('SublimeCVS.sublime-settings')
@@ -306,9 +278,10 @@ class SublimeCVS():
 
         try:
             status = cvs.check_status(path)
-        except (Exception) as xxx_todo_changeme1:
-            (exception) = xxx_todo_changeme1
+        except (Exception) as check_status_exception:
+            (exception) = check_status_exception
             sublime.error_message(str(exception))
+            return []
 
         file_status_cache[path] = {
             'time': time.time() + settings.get('cache_length'),
@@ -369,7 +342,6 @@ class NonInteractiveProcess():
         if os.name == 'nt':
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-
         proc = subprocess.Popen(self.args, stdin=subprocess.PIPE,
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                 startupinfo=startupinfo, cwd=self.cwd)
@@ -380,7 +352,7 @@ class NonInteractiveProcess():
 class CVS():
 
     def __init__(self, cvs_path, root_dir):
-        self.cvs_path = os.path.dirname(cvs_path) + '\\cvs.exe'
+        self.cvs_path = cvs_path
         self.root_dir = root_dir
 
     def check_status(self, path):
@@ -396,7 +368,6 @@ class CVS():
             [self.cvs_path, 'status', os.path.basename(path)],
             cwd=self.root_dir)
         result = proc.run()
-        #.split('\n')
         if len(result) > 0:
             if result.find('Status: Unknown') != -1:
                 return ''
