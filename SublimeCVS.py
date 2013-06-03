@@ -16,7 +16,7 @@ class NotFoundError(Exception):
 file_status_cache = {}
 
 
-class CVSNTCommand():
+class SublimeCVSCommand():
 
     def get_path(self, paths):
         if paths is True:
@@ -24,14 +24,14 @@ class CVSNTCommand():
         return paths[0] if paths else self.window.active_view().file_name()
 
     def get_cvs(self, path):
-        settings = sublime.load_settings('CVSNT.sublime-settings')
+        settings = sublime.load_settings('SublimeCVS.sublime-settings')
 
         if path is None:
             raise NotFoundError('Unable to run commands on an unsaved file')
         cvs = None
 
         try:
-            cvs = CVSNT(settings.get('cvsnt_cvs_path'), path)
+            cvs = SublimeCVS(settings.get('sublimecvs_cvs_path'), path)
         except (RepositoryNotFoundError):
             pass
 
@@ -47,22 +47,22 @@ class CVSNTCommand():
     def get_window(self):
         return self.window
 
-    def _output_to_file(self, output_file, output, clear=False, syntax=None, **kwargs):
+    def _output_to_file(self, output_file, text, clear=False, syntax=None, **kwargs):
         if syntax is not None:
             output_file.set_syntax_file(syntax)
         edit = output_file.begin_edit()
         if clear:
             region = sublime.Region(0, self.output_view.size())
             output_file.erase(edit, region)
-        output_file.insert(edit, 0, output)
+        output_file.insert(edit, 0, text.decode('utf-8'))
         output_file.end_edit(edit)
 
-    def output_to_new_file(self, output, title=False, position=None, **kwargs):
+    def output_to_new_file(self, text, title=False, position=None, **kwargs):
         new_file = self.get_window().new_file()
         if title:
             new_file.set_name(title)
         new_file.set_scratch(True)
-        self._output_to_file(new_file, output, **kwargs)
+        self._output_to_file(new_file, text, **kwargs)
         new_file.set_read_only(True)
         if position:
             sublime.set_timeout(lambda: new_file.set_viewport_position(position), 0)
@@ -77,7 +77,7 @@ class CVSNTCommand():
 
         # Write this text to the output panel and display it
         edit = panel.begin_edit()
-        panel.insert(edit, panel.size(), text + '\n')
+        panel.insert(edit, panel.size(), text.decode('utf-8') + '\n')
         panel.end_edit(edit)
         panel.show(panel.size())
 
@@ -90,7 +90,7 @@ def handles_not_found(fn):
             fn(self, *args, **kwargs)
         except (NotFoundError) as xxx_todo_changeme:
             (exception) = xxx_todo_changeme
-            sublime.error_message('CVSNT: ' + str(exception))
+            sublime.error_message('SublimeCVS: ' + str(exception))
     return handler
 
 
@@ -106,7 +106,7 @@ def invisible_when_not_found(fn):
     return handler
 
 
-# class CvsntAddCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+# class SublimeCvsAddCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
 
 #     @handles_not_found
 #     def run(self, paths=None):
@@ -128,7 +128,7 @@ def invisible_when_not_found(fn):
 #         return False and path and self.get_cvs(path).get_status(path) in ['']
 
 
-class CvsntAnnotateCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+class SublimeCvsAnnotateCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
 
     @handles_not_found
     def run(self, paths=None):
@@ -153,7 +153,7 @@ class CvsntAnnotateCommand(sublime_plugin.WindowCommand, CVSNTCommand):
         return path and self.get_cvs(path).get_status(path) in ['U', 'M', 'A', 'R', 'C', 'P', 'G', 'F']
 
 
-# class CvsntCommitCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+# class SublimeCvsCommitCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
 
 #     @handles_not_found
 #     def run(self, paths=None):
@@ -175,7 +175,7 @@ class CvsntAnnotateCommand(sublime_plugin.WindowCommand, CVSNTCommand):
 #         return False and path and self.get_cvs(path).get_status(path)
 
 
-class CvsntDiffCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+class SublimeCvsDiffCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
 
     @handles_not_found
     def run(self, paths=None):
@@ -203,7 +203,7 @@ class CvsntDiffCommand(sublime_plugin.WindowCommand, CVSNTCommand):
         return cvs.get_status(path) in ['M', 'F']
 
 
-class CvsntLogCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+class SublimeCvsLogCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
 
     @handles_not_found
     def run(self, paths=None):
@@ -228,14 +228,14 @@ class CvsntLogCommand(sublime_plugin.WindowCommand, CVSNTCommand):
         return path and self.get_cvs(path).get_status(path) in ['U', 'M', 'A', 'R', 'C', 'P', 'G', 'F']
 
 
-class CvsntStatusCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+class SublimeCvsStatusCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
 
     @handles_not_found
     def run(self, paths=None):
         path = self.get_path(paths)
         status = self.get_cvs(path).status(path if paths else None)
         if status is not None:
-            print status
+            self.output_to_panel(status, 'CVSStatus')
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
@@ -245,7 +245,7 @@ class CvsntStatusCommand(sublime_plugin.WindowCommand, CVSNTCommand):
         cvs = self.get_cvs(path)
         if os.path.isdir(path):
             return True
-        return False and path and cvs.get_status(path)
+        return path and cvs.get_status(path)
 
     @invisible_when_not_found
     def is_enabled(self, paths=None):
@@ -255,12 +255,14 @@ class CvsntStatusCommand(sublime_plugin.WindowCommand, CVSNTCommand):
         return path and self.get_cvs(path).get_status(path) in ['U', 'M', 'A', 'R', 'C', 'P', 'G', 'F']
 
 
-class CvsntUpdateCommand(sublime_plugin.WindowCommand, CVSNTCommand):
+class SublimeCvsUpdateCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
 
     @handles_not_found
     def run(self, paths=None):
         path = self.get_path(paths)
-        self.output_to_panel(self.get_cvs(path).update(path), 'CVSUpdate')
+        update = self.get_cvs(path).update(path)
+        if update is not None:
+            self.output_to_panel(update, 'CVSUpdate')
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
@@ -277,14 +279,14 @@ class CvsntUpdateCommand(sublime_plugin.WindowCommand, CVSNTCommand):
         return path and self.get_cvs(path).get_status(path) in ['C', 'P', 'G']
 
 
-class CVSNT():
+class SublimeCVS():
 
     def __init__(self, binary_path, file):
         self.find_root('CVS', file)
         if binary_path is not None:
             self.path = binary_path
         else:
-            self.set_binary_path('CVSNT\\cvs.exe', 'cvs.exe', 'cvsnt_cvs_path')
+            self.set_binary_path('SublimeCVS\\cvs.exe', 'cvs.exe', 'sublimecvs_cvs_path')
 
     def find_root(self, name, path, find_first=True):
         root_dir = None
@@ -325,13 +327,13 @@ class CVSNT():
                             '.\n\nPlease add the path to ' + binary_name +
                             ' to the setting "' + setting_name + '" in "' +
                             sublime.packages_path() +
-                            '\\CVSNT\\CVSNT.sublime-settings".\n\n' +
+                            '\\SublimeCVS\\SublimeCVS.sublime-settings".\n\n' +
                             'Example:\n\n' + '{"' + setting_name + '": r"' +
                             normal_path + '"}')
 
     def process_status(self, cvs, path):
         global file_status_cache
-        settings = sublime.load_settings('CVSNT.sublime-settings')
+        settings = sublime.load_settings('SublimeCVS.sublime-settings')
         if path in file_status_cache and file_status_cache[path]['time'] > \
                 time.time() - settings.get('cache_length'):
             if settings.get('debug'):
@@ -423,8 +425,8 @@ class NonInteractiveProcess():
 
 class CVS():
 
-    def __init__(self, cvsnt_cvs_path, root_dir):
-        self.cvs_path = os.path.dirname(cvsnt_cvs_path) + '\\cvs.exe'
+    def __init__(self, sublimecvs_cvs_path, root_dir):
+        self.cvs_path = os.path.dirname(sublimecvs_cvs_path) + '\\cvs.exe'
         self.root_dir = root_dir
 
     def check_status(self, path):
@@ -469,7 +471,7 @@ class CVS():
         return None
 
 
-class CVSNTStatusBar(sublime_plugin.EventListener, CVSNTCommand):
+class SublimeCVSStatusBar(sublime_plugin.EventListener, SublimeCVSCommand):
     def _update(self, view):
         try:
             path = view.file_name()
@@ -500,5 +502,5 @@ class CVSNTStatusBar(sublime_plugin.EventListener, CVSNTCommand):
             pass
 
 if sublime.version()[1] == "2":
-    CVSNTStatusBar.on_post_save = CVSNTStatusBar._update
-    CVSNTStatusBar.on_load = CVSNTStatusBar._update
+    SublimeCVSStatusBar.on_post_save = SublimeCVSStatusBar._update
+    SublimeCVSStatusBar.on_load = SublimeCVSStatusBar._update

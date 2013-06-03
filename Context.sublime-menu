@@ -1,17 +1,17 @@
 [
 	{ "caption": "-" },
 	{
-		"caption": "CVSNT",
+		"caption": "CVS",
 		"children":
 		[ 
-			{ "command": "cvsnt_annotate", "args": {"paths": true}, "caption": "Annotate" },
-			{ "command": "cvsnt_diff", "args": {"paths": true}, "caption": "Diff" },
-			{ "command": "cvsnt_log", "args": {"paths": true}, "caption": "Log" },
-			//{ "command": "cvsnt_status", "args": {"paths": true}, "caption": "Status" },
+			{ "command": "sublime_cvs_annotate", "args": {"paths": true}, "caption": "Annotate" },
+			{ "command": "sublime_cvs_diff", "args": {"paths": true}, "caption": "Diff" },
+			{ "command": "sublime_cvs_log", "args": {"paths": true}, "caption": "Log" },
+			{ "command": "sublime_cvs_status", "args": {"paths": true}, "caption": "Status" },
 			{ "caption": "-" },
-			// { "command": "cvsnt_add", "args": {"paths": true}, "caption": "Add" },
-			// { "command": "cvsnt_commit", "args": {"paths": true}, "caption": "Commit" },
-			{ "command": "cvsnt_update", "args": {"paths": true}, "caption": "Update…" }
+			// { "command": "sublime_cvs_add", "args": {"paths": true}, "caption": "Add" },
+			// { "command": "sublime_cvs_commit", "args": {"paths": true}, "caption": "Commit" },
+			{ "command": "sublime_cvs_update", "args": {"paths": true}, "caption": "Update…" }
 		]
 	}
 ]

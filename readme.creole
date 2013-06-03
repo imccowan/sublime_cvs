@@ -1,12 +1,12 @@
-= Sublime CVSNT
+= Sublime CVS
 
-Keyboard shortcuts and menu entries for using CVSNT from within [[http://www.sublimetext.com/2|Sublime Text 2]].
+Keyboard shortcuts and menu entries for using CVS from within [[http://www.sublimetext.com/2|Sublime Text 2]].
 
 == License
 
-All of Sublime CVSNT is licensed under the MIT license shown below.
+All of Sublime CVS is licensed under the MIT license shown below.
 
-  Copyright (c) 2012 Brian Hornsby
+  Copyright (c) 2013 Brian Hornsby
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal

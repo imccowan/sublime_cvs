@@ -1,20 +1,20 @@
 [
     {
-        "caption": "Preferences: CVSNT Settings – Default",
+        "caption": "Preferences: SublimeCVS Settings – Default",
         "command": "open_file",
         "args": {
-            "file": "${packages}/CVSNT/CVSNT.sublime-settings"
+            "file": "${packages}/SublimeCVS/SublimeCVS.sublime-settings"
         }
     },
     {
-        "caption": "Preferences: CVSNT Settings – User",
+        "caption": "Preferences: SublimeCVS Settings – User",
         "command": "open_file",
         "args": {
-            "file": "${packages}/User/CVSNT.sublime-settings"
+            "file": "${packages}/User/SublimeCVS.sublime-settings"
         }
     },
     {
-        "caption": "Preferences: CVSNT Key Bindings – Default",
+        "caption": "Preferences: SublimeCVS Key Bindings – Default",
         "command": "open_file",
         "args": {
             "file": "${packages}/Terminal/Default (Windows).sublime-keymap",
@@ -22,7 +22,7 @@
         }
     },
     {
-        "caption": "Preferences: CVSNT Key Bindings – User",
+        "caption": "Preferences: SublimeCVS Key Bindings – User",
         "command": "open_file",
         "args": {
             "file": "${packages}/User/Default (Windows).sublime-keymap",
