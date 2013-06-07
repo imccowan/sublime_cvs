@@ -69,18 +69,22 @@ class SublimeCVSCommand():
                 lambda: new_file.set_viewport_position(position), 0)
         return new_file
 
-    def output_to_panel(self, text, panel_name):
+    def output_to_panel(self, text, panel_name, syntax=None):
         if not hasattr(self, 'output_panel'):
-            self.output_panel = self.window.get_output_panel(panel_name)
+            self.output_panel = self.get_window().get_output_panel(panel_name)
         panel = self.output_panel
+        if syntax is not None:
+            panel.set_syntax_file(syntax)
 
+        panel.set_read_only(False)
         edit = panel.begin_edit()
-        panel.insert(edit, panel.size(), text.decode('utf-8') + '\n')
+        panel.insert(edit, panel.size(), text.decode('utf-8') + '\n\n')
         panel.end_edit(edit)
         panel.show(panel.size())
+        panel.set_read_only(True)
 
-        self.window.run_command("show_panel", {
-                                "panel": "output." + panel_name})
+        self.get_window().run_command("show_panel", {
+            "panel": "output." + panel_name})
 
 
 def handles_not_found(fn):
@@ -140,25 +144,8 @@ class SublimeCvsDiffCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
         diff = self.get_cvs(path).diff(
             path, unified_output=settings.get('diff_unified_output'))
         if diff is not None:
-            new_file = self.output_to_new_file(
+            self.view = self.output_to_new_file(
                 diff, title=path + ' - CVS Diff', syntax="Packages/Diff/Diff.tmLanguage")
-
-            if settings.get('diff_unified_output'):
-                lines_inserted = new_file.find_all(r'^\+[^+]')
-                lines_deleted = new_file.find_all(r'^-[^-]')
-            else:
-                lines_inserted = new_file.find_all(r'^>')
-                lines_deleted = new_file.find_all(r'^<')
-
-            new_file.add_regions(
-                "inserted", lines_inserted, "markup.inserted.diff", "dot", sublime.HIDDEN)
-            new_file.add_regions(
-                "deleted", lines_deleted, "markup.deleted.diff", "dot", sublime.HIDDEN)
-
-            # Store the git root directory in the view so we can resolve relative paths
-            # when the user wants to navigate to the source file.
-            #new_file.settings().set("git_root_dir", git_root(
-            #    self.get_working_dir()))
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
@@ -212,7 +199,7 @@ class SublimeCvsStatusCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
         path = self.get_path(paths)
         status = self.get_cvs(path).status(path if paths else None)
         if status is not None:
-            self.output_to_panel(status, 'CVSStatus')
+            self.output_to_panel(status, 'CVSStatus', syntax="Packages/SublimeCVS/syntax/CVS Status.tmLanguage")
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
