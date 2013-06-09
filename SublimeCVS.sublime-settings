@@ -10,9 +10,9 @@
 	// If context-menu entries should be enabled
 	"enable_menus": true,
 
-	// If debug messages should be printed to the console
-	"debug": false,
-
 	// If CVS diff should use the unified output format.
-	"diff_unified_output": false
+	"diff_unified_output": false,
+
+	// If debug messages should be printed to the console
+	"debug": false
 }
