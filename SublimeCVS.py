@@ -27,15 +27,23 @@ class SublimeCVSCommand():
         settings = sublime.load_settings('SublimeCVS.sublime-settings')
 
         if path is None:
+            debug('Unable to run commands on an unsaved file')
             raise NotFoundError('Unable to run commands on an unsaved file')
         cvs = None
 
+        cvs_path = settings.get('cvs_path')
+        if not os.path.exists(cvs_path):
+            debug('Specified CVS binary %s does not exist' % cvs_path)
+            raise NotFoundError('Specified CVS binary does not exist')
+
         try:
-            cvs = SublimeCVS(settings.get('cvs_path'), path)
+            cvs = SublimeCVS(cvs_path, path)
         except (RepositoryNotFoundError):
             pass
 
         if cvs is None:
+            debug('The current file does not appear to be in an ' +
+                  'CVS working copy')
             raise NotFoundError('The current file does not appear to be in an ' +
                                 'CVS working copy')
         return cvs
@@ -115,7 +123,7 @@ class SublimeCvsAnnotateCommand(sublime_plugin.WindowCommand, SublimeCVSCommand)
     def run(self, paths=None):
         path = self.get_path(paths)
         self.output_to_new_file(self.get_cvs(path).annotate(
-            path if paths else None), title=path + ' - CVS Annotated')
+            path if paths else None), title='CVS Annotate')
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
@@ -145,7 +153,7 @@ class SublimeCvsDiffCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
             path, unified_output=settings.get('diff_unified_output'))
         if diff is not None:
             self.view = self.output_to_new_file(
-                diff, title=path + ' - CVS Diff', syntax="Packages/Diff/Diff.tmLanguage")
+                diff, title='CVS Diff', syntax="Packages/Diff/Diff.tmLanguage")
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
@@ -172,7 +180,7 @@ class SublimeCvsLogCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
     def run(self, paths=None):
         path = self.get_path(paths)
         self.output_to_new_file(self.get_cvs(path).log(
-            path if paths else None), title=path + ' - CVS Log')
+            path if paths else None), title='CVS Log')
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
@@ -199,7 +207,9 @@ class SublimeCvsStatusCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
         path = self.get_path(paths)
         status = self.get_cvs(path).status(path if paths else None)
         if status is not None:
-            self.output_to_panel(status, 'CVSStatus', syntax="Packages/SublimeCVS/syntax/CVS Status.tmLanguage")
+            self.output_to_panel(status, 'CVSStatus')
+            #self.output_to_panel(
+            #    status, 'CVSStatus', syntax="Packages/SublimeCVS/syntax/CVS Status.tmLanguage")
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
@@ -300,7 +310,7 @@ class SublimeCVS():
         }
 
         debug('Fetching status %s for %s in %s seconds' % (status, path,
-                                                               str(time.time() - start_time)))
+                                                           str(time.time() - start_time)))
         return status
 
     def get_status(self, path):
