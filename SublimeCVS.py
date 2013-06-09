@@ -233,6 +233,7 @@ class SublimeCvsUpdateCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
         if not self.menus_enabled():
             return False
         path = self.get_path(paths)
+        cvs = self.get_cvs(path)
         return True
 
     @invisible_when_not_found
@@ -241,6 +242,11 @@ class SublimeCvsUpdateCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
         if os.path.isdir(path):
             return True
         return path and self.get_cvs(path).get_status(path) in ['C', 'P', 'G']
+
+
+def debug(text=''):
+    if sublime.load_settings('SublimeCVS.sublime-settings').get('debug'):
+        print 'SublimeCVS: %s' % text
 
 
 class SublimeCVS():
@@ -266,6 +272,7 @@ class SublimeCVS():
         if root_dir is None:
             raise RepositoryNotFoundError('Unable to find ' + name +
                                           ' directory')
+        debug('CVS root directory: %s' % root_dir)
         self.root_dir = root_dir
 
     def process_status(self, cvs, path):
@@ -273,8 +280,7 @@ class SublimeCVS():
         settings = sublime.load_settings('SublimeCVS.sublime-settings')
         if path in file_status_cache and file_status_cache[path]['time'] > \
                 time.time() - settings.get('cache_length'):
-            if settings.get('debug'):
-                print 'Fetching cached status for %s' % path
+            debug('Fetching cached status for %s' % path)
             return file_status_cache[path]['status']
 
         if settings.get('debug'):
@@ -292,9 +298,8 @@ class SublimeCVS():
             'status': status
         }
 
-        if settings.get('debug'):
-            print 'Fetching status %s for %s in %s seconds' % (status, path,
-                                                               str(time.time() - start_time))
+        debug('Fetching status %s for %s in %s seconds' % (status, path,
+                                                               str(time.time() - start_time)))
         return status
 
     def get_status(self, path):
