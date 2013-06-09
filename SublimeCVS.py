@@ -283,6 +283,7 @@ class SublimeCVS():
             debug('Fetching cached status for %s' % path)
             return file_status_cache[path]['status']
 
+        start_time = 0
         if settings.get('debug'):
             start_time = time.time()
 
