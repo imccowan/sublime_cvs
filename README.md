@@ -19,26 +19,36 @@ Screenshots
 
 Installation
 ------------
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Download the Sublime CVS zip file and extract into Sublime Text packages directory. Depending on your system you may have to update the cvs_path setting to point at the correct CVS binary.
 
 Usage
 -----
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+The implemented CVS commands can be accessed from the context menu of the currently open file or a file/folder in the side bar.
+
+**Annotate**: For each file, print the head revision of the trunk, together with information on the last modification for each line.
+
+**Diff**: Compare your working files with the revisions they were based on, and report any differences that are found.
+
+**Log**: Print out log information of a file.
+
+**Status**: Display the state of a file in the working directory.
+
+**Update**: Bring work tree in sync with repository. The key bindings can be modified by selecting the Preferences > Package Settings > Tortoise > Key Bindings – User menu entry.
 
 Settings
 --------
 The default settings can be viewed by accessing the Preferences > Package Settings > Tortoise > Settings – Default menu entry. To ensure settings are not lost when the package is upgraded, make sure all edits are saved to Settings – User .
 
-**cvs_path**: The path to the cvs binary.
+**cvs_path**: The path to the cvs binary. Default: /usr/bin/cvs
 
-**cache_length**: The number of seconds of time to cache CVS statuses - tweaking this may help computers with slower hard drives.
+**cache_length**: The number of seconds of time to cache CVS statuses - tweaking this may help computers with slower hard drives. Default: 5
 
-**enable_menus**: Set to true if context-menu entries should be enabled.
+**enable_menus**: Set to true if context-menu entries should be enabled. Default: true
 
-**diff_unified_output**: Set to true if CVS diff should output in unified format .
+**diff_unified_output**: Set to true if CVS diff should output in unified format. Default: false
 
-**debug**: Set to true if debug messages should be printed to the console.
+**debug**: Set to true if debug messages should be printed to the console. Default: false
 
 License
 -------
-All of Sublime CVS is licensed under the [MIT license](https://raw.github.com/brianhornsby/sublime_cvs/master/LICENSE.txt).
+Sublime CVS is licensed under the [MIT license](https://raw.github.com/brianhornsby/sublime_cvs/master/LICENSE.txt).
