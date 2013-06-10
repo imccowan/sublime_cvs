@@ -33,11 +33,11 @@ The implemented CVS commands can be accessed from the context menu of the curren
 
 **Status**: Display the state of a file in the working directory.
 
-**Update**: Bring work tree in sync with repository. The key bindings can be modified by selecting the Preferences > Package Settings > Tortoise > Key Bindings – User menu entry.
+**Update**: Bring work tree in sync with repository. The key bindings can be modified by selecting the Preferences > Package Settings > CVS > Key Bindings – User menu entry.
 
 Settings
 --------
-The default settings can be viewed by accessing the Preferences > Package Settings > Tortoise > Settings – Default menu entry. To ensure settings are not lost when the package is upgraded, make sure all edits are saved to Settings – User .
+The default settings can be viewed by accessing the Preferences > Package Settings > CVS > Settings – Default menu entry. To ensure settings are not lost when the package is upgraded, make sure all edits are saved to Settings – User .
 
 **cvs_path**: The path to the cvs binary. Default: /usr/bin/cvs
 
