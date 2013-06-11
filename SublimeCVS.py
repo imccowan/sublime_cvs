@@ -131,15 +131,11 @@ class SublimeCvsAnnotateCommand(sublime_plugin.WindowCommand, SublimeCVSCommand)
             return False
         path = self.get_path(paths)
         cvs = self.get_cvs(path)
-        if os.path.isdir(path):
-            return True
         return True
 
     @invisible_when_not_found
     def is_enabled(self, paths=None):
         path = self.get_path(paths)
-        if os.path.isdir(path):
-            return False
         return path and self.get_cvs(path).get_status(path) in ['U', 'M', 'A', 'R', 'C', 'P', 'G', 'F']
 
 
@@ -161,8 +157,6 @@ class SublimeCvsDiffCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
             return False
         path = self.get_path(paths)
         cvs = self.get_cvs(path)
-        if os.path.isdir(path):
-            return True
         return True
 
     @invisible_when_not_found
@@ -170,8 +164,7 @@ class SublimeCvsDiffCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
         path = self.get_path(paths)
         if os.path.isdir(path):
             return True
-        cvs = self.get_cvs(path)
-        return cvs.get_status(path) in ['M', 'F']
+        return path and self.get_cvs(path).get_status(path) in ['M', 'F']
 
 
 class SublimeCvsLogCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
@@ -193,8 +186,6 @@ class SublimeCvsLogCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
     @invisible_when_not_found
     def is_enabled(self, paths=None):
         path = self.get_path(paths)
-        if os.path.isdir(path):
-            return False
         return path and self.get_cvs(path).get_status(path) in ['U', 'M', 'A', 'R', 'C', 'P', 'G', 'F']
 
 
@@ -218,9 +209,7 @@ class SublimeCvsStatusCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
             return False
         path = self.get_path(paths)
         cvs = self.get_cvs(path)
-        if os.path.isdir(path):
-            return True
-        return path and cvs.get_status(path)
+        return True
 
     @invisible_when_not_found
     def is_enabled(self, paths=None):
