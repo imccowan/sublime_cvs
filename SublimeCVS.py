@@ -150,7 +150,7 @@ class SublimeCvsDiffCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
         settings = sublime.load_settings('SublimeCVS.sublime-settings')
         path = self.get_path(paths)
         diff = self.get_cvs(path).diff(
-            path, unified_output=settings.get('diff_unified_output'))
+            path, unified_output=settings.get('diff_unified_output', False))
         if diff is not None:
             self.view = self.output_to_new_file(
                 diff, title='CVS Diff', syntax="Packages/Diff/Diff.tmLanguage")
@@ -207,9 +207,12 @@ class SublimeCvsStatusCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
         path = self.get_path(paths)
         status = self.get_cvs(path).status(path if paths else None)
         if status is not None:
-            self.output_to_panel(status, 'CVSStatus')
-            #self.output_to_panel(
-            #    status, 'CVSStatus', syntax="Packages/SublimeCVS/syntax/CVS Status.tmLanguage")
+            settings = sublime.load_settings('SublimeCVS.sublime-settings')
+            output_style = settings.get('cvs_status_new_file', 'never')
+            if output_style == 'always' or (output_style == 'foldersonly' and os.path.isdir(path)):
+                self.output_to_new_file(status, 'CVS Status')
+            else:
+                self.output_to_panel(status, 'CVS Status')
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
@@ -255,7 +258,7 @@ class SublimeCvsUpdateCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
 
 
 def debug(text=''):
-    if sublime.load_settings('SublimeCVS.sublime-settings').get('debug'):
+    if sublime.load_settings('SublimeCVS.sublime-settings').get('debug', False):
         print 'SublimeCVS: %s' % text
 
 
@@ -289,12 +292,12 @@ class SublimeCVS():
         global file_status_cache
         settings = sublime.load_settings('SublimeCVS.sublime-settings')
         if path in file_status_cache and file_status_cache[path]['time'] > \
-                time.time() - settings.get('cache_length'):
+                time.time() - settings.get('cache_length', 5):
             debug('Fetching cached status for %s' % path)
             return file_status_cache[path]['status']
 
         start_time = 0
-        if settings.get('debug'):
+        if settings.get('debug', False):
             start_time = time.time()
 
         try:
@@ -305,7 +308,7 @@ class SublimeCVS():
             return []
 
         file_status_cache[path] = {
-            'time': time.time() + settings.get('cache_length'),
+            'time': time.time() + settings.get('cache_length', 5),
             'status': status
         }
 

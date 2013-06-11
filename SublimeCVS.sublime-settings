@@ -13,6 +13,10 @@
 	// If CVS diff should use the unified output format.
 	"diff_unified_output": false,
 
+	// If the output from CVS status should be displayed in a new file.
+	// Allowed values: 'always', 'foldersonly', 'never'.
+	"cvs_status_new_file": "never",
+
 	// If debug messages should be printed to the console
 	"debug": false
 }
