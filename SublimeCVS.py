@@ -188,8 +188,6 @@ class SublimeCvsLogCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
             return False
         path = self.get_path(paths)
         cvs = self.get_cvs(path)
-        if os.path.isdir(path):
-            return True
         return True
 
     @invisible_when_not_found
@@ -227,8 +225,6 @@ class SublimeCvsStatusCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
     @invisible_when_not_found
     def is_enabled(self, paths=None):
         path = self.get_path(paths)
-        if os.path.isdir(path):
-            return True
         return path and self.get_cvs(path).get_status(path) in ['U', 'M', 'A', 'R', 'C', 'P', 'G', 'F']
 
 
@@ -239,7 +235,7 @@ class SublimeCvsUpdateCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
         path = self.get_path(paths)
         update = self.get_cvs(path).update(path)
         if update is not None:
-            self.output_to_panel(update, 'CVSUpdate')
+            self.output_to_panel(update, 'CVS Update')
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
@@ -252,8 +248,6 @@ class SublimeCvsUpdateCommand(sublime_plugin.WindowCommand, SublimeCVSCommand):
     @invisible_when_not_found
     def is_enabled(self, paths=None):
         path = self.get_path(paths)
-        if os.path.isdir(path):
-            return True
         return path and self.get_cvs(path).get_status(path) in ['C', 'P', 'G']
 
 
@@ -380,12 +374,16 @@ class CVS():
 
     def check_status(self, path):
         if os.path.isdir(path):
-            proc = NonInteractiveProcess([self.cvs_path, 'log', '-l', '1',
-                                          '"' + path + '"'], cwd=self.root_dir)
+            proc = NonInteractiveProcess([self.cvs_path, 'status'], cwd=self.root_dir)
             result = proc.run().strip().split('\n')
-            if result == ['']:
-                return '?'
-            return ''
+            for line in result:
+                if line.find('Status: Needs Checkout') != -1:
+                    return 'C'
+                if line.find('Status: Needs Patch') != -1:
+                    return 'P'
+                if line.find('Status: Needs Merge') != -1:
+                    return 'G'
+            return 'U'
 
         proc = NonInteractiveProcess(
             [self.cvs_path, 'status', os.path.basename(path)],
