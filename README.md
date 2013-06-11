@@ -47,6 +47,8 @@ The default settings can be viewed by accessing the Preferences > Package Settin
 
 **diff_unified_output**: Set to true if CVS diff should output in unified format. Default: false
 
+**cvs_status_new_file**: If the output from CVS status should be displayed in a new file, rather than a panel. Allowed values: 'always', 'foldersonly', 'never'. Default: never
+
 **debug**: Set to true if debug messages should be printed to the console. Default: false
 
 License
