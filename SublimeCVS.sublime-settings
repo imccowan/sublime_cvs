@@ -17,6 +17,7 @@
 	// Allowed values: 'always', 'foldersonly', 'never'.
 	"cvs_status_new_file": "never",
 
+	// If the output from CVS log should show tags.
 	"cvs_log_show_tags": true,
 
 	// If debug messages should be printed to the console
