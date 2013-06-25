@@ -252,8 +252,7 @@ class CVSStatusBar(sublime_plugin.EventListener, CVSCommand):
         try:
             path = view.file_name()
             if path:
-                status = self.get_cvs
-(path).get_status(path)
+                status = self.get_cvs(path).get_status(path)
                 if status == 'U':
                     status = 'Up-to-date'
                 elif status == 'M':
