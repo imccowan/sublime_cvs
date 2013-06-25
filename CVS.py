@@ -252,7 +252,8 @@ class CVSStatusBar(sublime_plugin.EventListener, CVSCommand):
         try:
             path = view.file_name()
             if path:
-                status = self.get_cvs(path).get_status(path)
+                status = self.get_cvs
+(path).get_status(path)
                 if status == 'U':
                     status = 'Up-to-date'
                 elif status == 'M':
@@ -283,7 +284,6 @@ class SublimeCVS():
     def __init__(self, binary_path, file):
         self.find_root('CVS', file)
         self.path = binary_path
-        self.cvs = CVS(self.path, self.root_dir)
 
     def find_root(self, name, path, find_first=True):
         root_dir = None
@@ -305,98 +305,11 @@ class SublimeCVS():
         debug('CVS root directory: %s' % root_dir)
         self.root_dir = root_dir
 
-    def process_status(self, path):
-        global file_status_cache
-        settings = sublime.load_settings('CVS.sublime-settings')
-        if path in file_status_cache and file_status_cache[path]['time'] > \
-                time.time() - settings.get('cache_length', 5):
-            debug('Fetching cached status for %s' % path)
-            return file_status_cache[path]['status']
-
-        start_time = 0
-        if settings.get('debug', False):
-            start_time = time.time()
-
-        try:
-            status = self.cvs.check_status(path)
-        except (Exception) as check_status_exception:
-            (exception) = check_status_exception
-            sublime.error_message(str(exception))
-            return []
-
-        file_status_cache[path] = {
-            'time': time.time() + settings.get('cache_length', 5),
-            'status': status
-        }
-
-        debug('Fetching status %s for %s in %s seconds' % (status, path,
-                                                           str(time.time() - start_time)))
-        return status
-
-    def get_status(self, path):
-        return self.process_status(path)
-
-    def annotate(self, path=None):
-        path = os.path.relpath(path, self.root_dir)
-        args = [self.path, 'annotate', path]
-        return self.cvs.run(args, self.root_dir)
-
-    def diff(self, path, unified_output=False):
-        path = os.path.relpath(path, self.root_dir)
-        args = [self.path, 'diff']
-        if unified_output:
-            args.append('-u')
-        args.append(path)
-        return self.cvs.run(args, self.root_dir)
-
-    def log(self, path=None, show_tags=True):
-        path = os.path.relpath(path, self.root_dir)
-        args = [self.path, 'log']
-        if not show_tags:
-            args.append('-N')
-        args.append(path)
-        return self.cvs.run(args, self.root_dir)
-
-    def status(self, path=None):
+    def check_status(self, path):
         path = os.path.relpath(path, self.root_dir)
         args = [self.path, 'status', path]
-        return self.cvs.run(args, self.root_dir)
-
-    def update(self, path=None):
-        path = os.path.relpath(path, self.root_dir)
-        args = [self.path, 'update', path]
-        return self.cvs.run(args, self.root_dir)
-
-
-class NonInteractiveProcess():
-
-    def __init__(self, args, cwd=None):
-        self.args = args
-        self.cwd = cwd
-
-    def run(self):
-        startupinfo = None
-        if os.name == 'nt':
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        proc = subprocess.Popen(self.args, stdin=subprocess.PIPE,
-                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                startupinfo=startupinfo, cwd=self.cwd)
-
-        return proc.stdout.read().replace('\r\n', '\n').rstrip(' \n\r')
-
-
-class CVS():
-
-    def __init__(self, cvs_path, root_dir):
-        self.cvs_path = cvs_path
-        self.root_dir = root_dir
-
-    def check_status(self, path):
+        result = NonInteractiveProcess(args, cwd=self.root_dir).run()
         if os.path.isdir(path):
-            proc = NonInteractiveProcess(
-                [self.cvs_path, 'status'], cwd=self.root_dir)
-            result = proc.run()
             if result.find('Status: Needs Checkout') != -1:
                 return 'C'
             if result.find('Status: Needs Patch') != -1:
@@ -405,10 +318,6 @@ class CVS():
                 return 'G'
             return 'U'
 
-        proc = NonInteractiveProcess(
-            [self.cvs_path, 'status', os.path.basename(path)],
-            cwd=self.root_dir)
-        result = proc.run()
         if len(result) > 0:
             if result.find('Status: Unknown') != -1:
                 return ''
@@ -430,9 +339,85 @@ class CVS():
                 return 'F'
         return ''
 
-    def run(self, cmd, cwd):
-        proc = NonInteractiveProcess(cmd, cwd=cwd)
-        result = proc.run()
+    def process_status(self, path):
+        global file_status_cache
+        settings = sublime.load_settings('CVS.sublime-settings')
+        if path in file_status_cache and file_status_cache[path]['time'] > \
+                time.time() - settings.get('cache_length', 5):
+            debug('Fetching cached status for %s' % path)
+            return file_status_cache[path]['status']
+
+        start_time = 0
+        if settings.get('debug', False):
+            start_time = time.time()
+
+        try:
+            status = self.check_status(path)
+        except (Exception) as check_status_exception:
+            (exception) = check_status_exception
+            sublime.error_message(str(exception))
+            return []
+
+        file_status_cache[path] = {
+            'time': time.time() + settings.get('cache_length', 5),
+            'status': status
+        }
+
+        debug('Fetching status %s for %s in %s seconds' % (status, path,
+                                                           str(time.time() - start_time)))
+        return status
+
+    def get_status(self, path):
+        return self.process_status(path)
+
+    def annotate(self, path=None):
+        path = os.path.relpath(path, self.root_dir)
+        args = [self.path, 'annotate', path]
+        return NonInteractiveProcess(args, cwd=self.root_dir).run()
+
+    def diff(self, path, unified_output=False):
+        path = os.path.relpath(path, self.root_dir)
+        args = [self.path, 'diff']
+        if unified_output:
+            args.append('-u')
+        args.append(path)
+        return NonInteractiveProcess(args, cwd=self.root_dir).run()
+
+    def log(self, path=None, show_tags=True):
+        path = os.path.relpath(path, self.root_dir)
+        args = [self.path, 'log']
+        if not show_tags:
+            args.append('-N')
+        args.append(path)
+        return NonInteractiveProcess(args, cwd=self.root_dir).run()
+
+    def status(self, path=None):
+        path = os.path.relpath(path, self.root_dir)
+        args = [self.path, 'status', path]
+        return NonInteractiveProcess(args, cwd=self.root_dir).run()
+
+    def update(self, path=None):
+        path = os.path.relpath(path, self.root_dir)
+        args = [self.path, 'update', path]
+        return NonInteractiveProcess(args, cwd=self.root_dir).run()
+
+
+class NonInteractiveProcess():
+
+    def __init__(self, args, cwd=None):
+        self.args = args
+        self.cwd = cwd
+
+    def run(self):
+        startupinfo = None
+        if os.name == 'nt':
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        proc = subprocess.Popen(self.args, stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                startupinfo=startupinfo, cwd=self.cwd)
+
+        result = proc.stdout.read().replace('\r\n', '\n').rstrip(' \n\r')
         if len(result) > 0:
             return result
         return None
