@@ -1,10 +1,9 @@
 [
-// 	{ "keys": ["ctrl+alt+v","ctrl+alt+f"], "command": "sublime_cvs_annotate", "args": {"paths": true} },
-// 	{ "keys": ["ctrl+alt+v","ctrl+alt+f"], "command": "sublime_cvs_diff", "args": {"paths": true} },
-// 	{ "keys": ["ctrl+alt+v","ctrl+alt+l"], "command": "sublime_cvs_log" },
-// 	{ "keys": ["ctrl+alt+v","ctrl+alt+g"], "command": "sublime_cvs_log", "args": {"paths": true} },
-// 	{ "keys": ["ctrl+alt+v","ctrl+alt+s"], "command": "sublime_cvs_status" },
-// 	{ "keys": ["ctrl+alt+v","ctrl+alt+a"], "command": "sublime_cvs_add", "args": {"paths": true} },
-// 	{ "keys": ["ctrl+alt+v","ctrl+alt+c"], "command": "sublime_cvs_commit" },
-// 	{ "keys": ["ctrl+alt+v","ctrl+alt+a"], "command": "sublime_cvs_add", "args": {"paths": true} }
+// 	{ "keys": ["ctrl+alt+v","ctrl+alt+f"], "command": "cvs_annotate", "args": {"paths": true} },
+// 	{ "keys": ["ctrl+alt+v","ctrl+alt+f"], "command": "cvs_diff", "args": {"paths": true} },
+// 	{ "keys": ["ctrl+alt+v","ctrl+alt+l"], "command": "cvs_log" },
+// 	{ "keys": ["ctrl+alt+v","ctrl+alt+g"], "command": "cvs_log", "args": {"paths": true} },
+// 	{ "keys": ["ctrl+alt+v","ctrl+alt+s"], "command": "cvs_status" },
+// 	{ "keys": ["ctrl+alt+v","ctrl+alt+a"], "command": "cvs_add", "args": {"paths": true} },
+// 	{ "keys": ["ctrl+alt+v","ctrl+alt+c"], "command": "cvs_commit" }}
 ]

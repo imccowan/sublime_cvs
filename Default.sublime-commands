@@ -1,20 +1,20 @@
 [
     {
-        "caption": "Preferences: SublimeCVS Settings – Default",
+        "caption": "Preferences: CVS Settings – Default",
         "command": "open_file",
         "args": {
-            "file": "${packages}/SublimeCVS/SublimeCVS.sublime-settings"
+            "file": "${packages}/CVS/CVS.sublime-settings"
         }
     },
     {
-        "caption": "Preferences: SublimeCVS Settings – User",
+        "caption": "Preferences: CVS Settings – User",
         "command": "open_file",
         "args": {
-            "file": "${packages}/User/SublimeCVS.sublime-settings"
+            "file": "${packages}/User/CVS.sublime-settings"
         }
     },
     {
-        "caption": "Preferences: SublimeCVS Key Bindings – Default",
+        "caption": "Preferences: CVS Key Bindings – Default",
         "command": "open_file",
         "args": {
             "file": "${packages}/Terminal/Default (Windows).sublime-keymap",
@@ -22,7 +22,7 @@
         }
     },
     {
-        "caption": "Preferences: SublimeCVS Key Bindings – User",
+        "caption": "Preferences: CVS Key Bindings – User",
         "command": "open_file",
         "args": {
             "file": "${packages}/User/Default (Windows).sublime-keymap",
@@ -31,35 +31,35 @@
     },
     {
         "caption": "CVS: Annotate",
-        "command": "sublime_cvs_annotate",
+        "command": "cvs_annotate",
         "args": {
             "paths": true
         }
     },
     {
         "caption": "CVS: Diff",
-        "command": "sublime_cvs_diff",
+        "command": "cvs_diff",
         "args": {
             "paths": true
         }
     },
     {
         "caption": "CVS: Log",
-        "command": "sublime_cvs_log",
+        "command": "cvs_log",
         "args": {
             "paths": true
         }
     },
     {
         "caption": "CVS: Status",
-        "command": "sublime_cvs_status",
+        "command": "cvs_status",
         "args": {
             "paths": true
         }
     },
     {
         "caption": "CVS: Update",
-        "command": "sublime_cvs_update",
+        "command": "cvs_update",
         "args": {
             "paths": true
         }
