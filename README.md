@@ -25,7 +25,7 @@ Usage
 -----
 The implemented CVS commands can be accessed from the context menu of the currently open file or a file/folder in the side bar.
 
-**Annotate**: For each file, print the head revision of the trunk, together with information on the last modification for each line.
+**Annotate**: For each file, print the head/working/repository revision of the trunk, together with information on the last modification for each line.
 
 **Diff**: Compare your working files with the revisions they were based on, and report any differences that are found.
 
@@ -48,6 +48,8 @@ The default settings can be viewed by accessing the Preferences > Package Settin
 **diff_unified_output**: Set to true if CVS diff should output in unified format. Default: false
 
 **cvs_status_new_file**: If the output from CVS status should be displayed in a new file, rather than a panel. Allowed values: 'always', 'foldersonly', 'never'. Default: never
+
+**cvs_log_show_tags**: If the output from CVS log should show tags. Default: true
 
 **debug**: Set to true if debug messages should be printed to the console. Default: false
 
