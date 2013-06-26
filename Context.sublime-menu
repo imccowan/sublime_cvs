@@ -4,7 +4,15 @@
 		"caption": "CVS",
 		"children":
 		[ 
-			{ "command": "cvs_annotate", "args": {"paths": true}, "caption": "Annotate" },
+			{ 
+				"caption": "Annotate",
+				"children":
+				[
+					{ "command": "cvs_annotate", "args": {"paths": true}, "caption": "Head" },
+					{ "command": "cvs_annotate", "args": {"paths": true, "revision": "working"}, "caption": "Working" },
+					{ "command": "cvs_annotate", "args": {"paths": true, "revision": "repository"}, "caption": "Repository" }
+				]
+			},
 			{ "command": "cvs_diff", "args": {"paths": true}, "caption": "Diff" },
 			{ "command": "cvs_log", "args": {"paths": true}, "caption": "Log" },
 			{ "command": "cvs_status", "args": {"paths": true}, "caption": "Status" },

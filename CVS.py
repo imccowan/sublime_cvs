@@ -125,13 +125,23 @@ def invisible_when_not_found(fn):
 class CvsAnnotateCommand(sublime_plugin.WindowCommand, CVSCommand):
 
     @handles_not_found
-    def run(self, paths=None):
+    def run(self, paths=None, revision=False):
         path = self.get_path(paths)
-        self.output_to_new_file(self.get_cvs(path).annotate(
-            path if paths else None), title='CVS Annotate')
+        cvs = self.get_cvs(path)
+
+        if revision:
+            result = cvs.status(path if paths else None)
+            if revision == 'working':
+                revision = result.split('Working revision:')[1].split()[0]
+            elif revision == 'repository':
+                revision = result.split('Repository revision:')[1].split()[0]
+            else:
+                revision = False
+
+        self.output_to_new_file(cvs.annotate(path if paths else None, revision if revision else False), title='CVS Annotate')
 
     @invisible_when_not_found
-    def is_visible(self, paths=None):
+    def is_visible(self, paths=None, revision=False):
         if not self.menus_enabled():
             return False
         path = self.get_path(paths)
@@ -139,7 +149,7 @@ class CvsAnnotateCommand(sublime_plugin.WindowCommand, CVSCommand):
         return True
 
     @invisible_when_not_found
-    def is_enabled(self, paths=None):
+    def is_enabled(self, paths=None, revision=False):
         path = self.get_path(paths)
         return path and self.get_cvs(path).get_status(path) in ['U', 'M', 'A', 'R', 'C', 'P', 'G', 'F']
 
@@ -369,9 +379,13 @@ class SublimeCVS():
     def get_status(self, path):
         return self.process_status(path)
 
-    def annotate(self, path=None):
+    def annotate(self, path=None, revision=False):
         path = os.path.relpath(path, self.root_dir)
-        args = [self.path, 'annotate', path]
+        args = [self.path, 'annotate']
+        if revision:
+            args.append('-r')
+            args.append(revision)
+        args.append(path)
         return NonInteractiveProcess(args, cwd=self.root_dir).run()
 
     def diff(self, path, unified_output=False):
