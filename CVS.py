@@ -53,10 +53,6 @@ class CVSCommand():
                                 'CVS working copy')
         return cvs
 
-    def menus_enabled(self):
-        settings = sublime.load_settings('CVS.sublime-settings')
-        return settings.get('enable_menus', True)
-
     def get_window(self):
         return self.window
 
@@ -142,10 +138,6 @@ class CvsAnnotateCommand(sublime_plugin.WindowCommand, CVSCommand):
 
     @invisible_when_not_found
     def is_visible(self, paths=None, revision=False):
-        if not self.menus_enabled():
-            return False
-        path = self.get_path(paths)
-        cvs = self.get_cvs(path)
         return True
 
     @invisible_when_not_found
@@ -168,10 +160,6 @@ class CvsDiffCommand(sublime_plugin.WindowCommand, CVSCommand):
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
-        if not self.menus_enabled():
-            return False
-        path = self.get_path(paths)
-        cvs = self.get_cvs(path)
         return True
 
     @invisible_when_not_found
@@ -193,10 +181,6 @@ class CvsLogCommand(sublime_plugin.WindowCommand, CVSCommand):
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
-        if not self.menus_enabled():
-            return False
-        path = self.get_path(paths)
-        cvs = self.get_cvs(path)
         return True
 
     @invisible_when_not_found
@@ -221,10 +205,6 @@ class CvsStatusCommand(sublime_plugin.WindowCommand, CVSCommand):
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
-        if not self.menus_enabled():
-            return False
-        path = self.get_path(paths)
-        cvs = self.get_cvs(path)
         return True
 
     @invisible_when_not_found
@@ -244,10 +224,6 @@ class CvsUpdateCommand(sublime_plugin.WindowCommand, CVSCommand):
 
     @invisible_when_not_found
     def is_visible(self, paths=None):
-        if not self.menus_enabled():
-            return False
-        path = self.get_path(paths)
-        cvs = self.get_cvs(path)
         return True
 
     @invisible_when_not_found

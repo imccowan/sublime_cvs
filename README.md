@@ -43,8 +43,6 @@ The default settings can be viewed by accessing the Preferences > Package Settin
 
 **cache_length**: The number of seconds of time to cache CVS statuses - tweaking this may help computers with slower hard drives. Default: 5
 
-**enable_menus**: Set to true if context-menu entries should be enabled. Default: true
-
 **diff_unified_output**: Set to true if CVS diff should output in unified format. Default: false
 
 **cvs_status_new_file**: If the output from CVS status should be displayed in a new file, rather than a panel. Allowed values: 'always', 'foldersonly', 'never'. Default: never
