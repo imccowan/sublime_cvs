@@ -19,7 +19,7 @@
 			{ "caption": "-" },
 			// { "command": "cvs_add", "args": {"paths": true}, "caption": "Add" },
 			// { "command": "cvs_commit", "args": {"paths": true}, "caption": "Commit" },
-			{ "command": "cvs_update", "args": {"paths": true}, "caption": "Update…" }
+			{ "command": "cvs_update", "args": {"paths": true}, "caption": "Update" }
 		]
 	}
 ]
