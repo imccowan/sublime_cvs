@@ -271,7 +271,6 @@ class SublimeCVS():
 
     def __init__(self, binary_path, file):
         self.find_root('CVS', file)
-        print(binary_path)
         self.path = binary_path
 
     def find_root(self, name, path, find_first=True):
