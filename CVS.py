@@ -13,12 +13,20 @@ class NotFoundError(Exception):
     pass
 
 
+class WriteTextCommand(sublime_plugin.TextCommand):
+    def run(self, edit, content, clear):
+        if clear:
+            region = sublime.Region(0, self.output_view.size())
+            self.view.erase(edit, region)
+        self.view.insert(edit, 0, content)
+
+
 file_status_cache = {}
 
 
 def debug(text=''):
     if sublime.load_settings('CVS.sublime-settings').get('debug', False):
-        print 'CVS: %s' % text
+        print('CVS: %s' % text)
 
 
 class CVSCommand():
@@ -59,12 +67,8 @@ class CVSCommand():
     def _output_to_file(self, output_file, text, clear=False, syntax=None, **kwargs):
         if syntax is not None:
             output_file.set_syntax_file(syntax)
-        edit = output_file.begin_edit()
-        if clear:
-            region = sublime.Region(0, self.output_view.size())
-            output_file.erase(edit, region)
-        output_file.insert(edit, 0, text.decode('utf-8'))
-        output_file.end_edit(edit)
+        output_file.run_command('write_text', {'content': text, 'clear': clear})
+
 
     def output_to_new_file(self, text, title=False, position=None, **kwargs):
         new_file = self.get_window().new_file()
@@ -86,9 +90,8 @@ class CVSCommand():
             panel.set_syntax_file(syntax)
 
         panel.set_read_only(False)
-        edit = panel.begin_edit()
-        panel.insert(edit, panel.size(), text.decode('utf-8') + '\n\n')
-        panel.end_edit(edit)
+        panel.run_command('write_text', {'content': text + '\n\n',
+                                         'clear': False})
         panel.show(panel.size())
         panel.set_read_only(True)
 
@@ -268,6 +271,7 @@ class SublimeCVS():
 
     def __init__(self, binary_path, file):
         self.find_root('CVS', file)
+        print(binary_path)
         self.path = binary_path
 
     def find_root(self, name, path, find_first=True):
@@ -287,7 +291,7 @@ class SublimeCVS():
         if root_dir is None:
             raise RepositoryNotFoundError('Unable to find ' + name +
                                           ' directory')
-        debug('CVS root directory: %s' % root_dir)
+        debug('CVS root directory: {}'.format(root_dir))
         self.root_dir = root_dir
 
     def check_status(self, path):
@@ -406,7 +410,7 @@ class NonInteractiveProcess():
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                 startupinfo=startupinfo, cwd=self.cwd)
 
-        result = proc.stdout.read().replace('\r\n', '\n').rstrip(' \n\r')
+        result = proc.stdout.read().decode().replace('\r\n', '\n').rstrip(' \n\r')
         if len(result) > 0:
             return result
         return None
